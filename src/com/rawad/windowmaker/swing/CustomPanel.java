@@ -1,4 +1,4 @@
-package test;
+package com.rawad.windowmaker.swing;
 
 import java.awt.Color;
 import java.awt.Cursor;
