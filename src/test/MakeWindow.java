@@ -22,8 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -60,10 +58,6 @@ public class MakeWindow {
 	private CustomPanel customPanel;
 
 	private JLabel infoLabel;
-	private JPanel panel_1;
-	private JPanel panel_2;
-	private JTextArea textArea_1;
-	private JLabel lblNewLabel;
 
 	/**
 	 * Launch the application.
@@ -163,40 +157,6 @@ public class MakeWindow {
 		gbc_slider.gridx = 1;
 		gbc_slider.gridy = 1;
 		panel.add(slider, gbc_slider);
-
-		panel_1 = new JPanel();
-		panel_1.setBackground(Color.WHITE);
-		tabbedPane.addTab("Test", null, panel_1, null);
-
-		panel_2 = new JPanel();
-		panel_2.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-		panel_2.setAlignmentX(Component.LEFT_ALIGNMENT);
-		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
-		gl_panel_1.setHorizontalGroup(gl_panel_1.createParallelGroup(
-				Alignment.LEADING).addGroup(
-				gl_panel_1
-						.createSequentialGroup()
-						.addContainerGap()
-						.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 221,
-								GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(246, Short.MAX_VALUE)));
-		gl_panel_1.setVerticalGroup(gl_panel_1.createParallelGroup(
-				Alignment.TRAILING).addGroup(
-				gl_panel_1
-						.createSequentialGroup()
-						.addContainerGap(187, Short.MAX_VALUE)
-						.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 212,
-								GroupLayout.PREFERRED_SIZE).addContainerGap()));
-		panel_2.setLayout(new BorderLayout(0, 0));
-
-		textArea_1 = new JTextArea();
-		panel_2.add(textArea_1, BorderLayout.SOUTH);
-
-		lblNewLabel = new JLabel("New label");
-		panel_2.add(lblNewLabel, BorderLayout.CENTER);
-		gl_panel_1.setAutoCreateGaps(true);
-		gl_panel_1.setAutoCreateContainerGaps(true);
-		panel_1.setLayout(gl_panel_1);
 
 		JMenuBar menuBar = new JMenuBar();
 		frmFrameTitle.setJMenuBar(menuBar);
