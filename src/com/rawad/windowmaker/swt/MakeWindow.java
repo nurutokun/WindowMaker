@@ -75,7 +75,7 @@ public class MakeWindow {
 		textEditorTab.setText("Text Editor");
 
 		text = new Text(tabFolder, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
-				| SWT.CANCEL);
+				| SWT.CANCEL | SWT.MULTI);
 		textEditorTab.setControl(text);
 
 		TabItem imageEditorTab = new TabItem(tabFolder, SWT.NONE);
