@@ -12,12 +12,15 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.PaintEvent;
 
 public class MakeWindow {
 
 	protected Shell shlFrameTitle;
 	private TabFolder tabFolder;
 	private Text text;
+	private CustomCanvas customCanvas;
 
 	/**
 	 * Launch the application.
@@ -80,6 +83,14 @@ public class MakeWindow {
 
 		TabItem imageEditorTab = new TabItem(tabFolder, SWT.NONE);
 		imageEditorTab.setText("Image Editor");
+
+		customCanvas = new CustomCanvas(tabFolder, SWT.NONE);
+		customCanvas.addPaintListener(new PaintListener() {
+			public void paintControl(PaintEvent e) {
+				customCanvas.render(e.gc);
+			}
+		});
+		imageEditorTab.setControl(customCanvas);
 
 	}
 
