@@ -1,4 +1,4 @@
-package com.rawad.windowmaker.awt;
+package com.rawad.windowmaker.swt;
 
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -11,11 +11,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Text;
 
 public class MakeWindow {
 
 	protected Shell shlFrameTitle;
 	private TabFolder tabFolder;
+	private Text text;
 
 	/**
 	 * Launch the application.
@@ -69,11 +71,15 @@ public class MakeWindow {
 
 		tabFolder = new TabFolder(composite, SWT.BORDER);
 
-		TabItem tbtmNewItem = new TabItem(tabFolder, SWT.NONE);
-		tbtmNewItem.setText("Text Editor");
+		TabItem textEditorTab = new TabItem(tabFolder, SWT.NONE);
+		textEditorTab.setText("Text Editor");
 
-		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
-		tbtmNewItem_1.setText("Image Editor");
+		text = new Text(tabFolder, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
+				| SWT.CANCEL);
+		textEditorTab.setControl(text);
+
+		TabItem imageEditorTab = new TabItem(tabFolder, SWT.NONE);
+		imageEditorTab.setText("Image Editor");
 
 	}
 
