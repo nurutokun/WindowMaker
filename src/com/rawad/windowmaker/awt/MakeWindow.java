@@ -15,8 +15,6 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 public class MakeWindow {
 
-	private DataBindingContext m_bindingContext;
-
 	protected Shell shlFrameTitle;
 	private TabFolder tabFolder;
 
@@ -77,13 +75,7 @@ public class MakeWindow {
 
 		TabItem tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmNewItem_1.setText("Image Editor");
-		m_bindingContext = initDataBindings();
 
 	}
 
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		return bindingContext;
-	}
 }
