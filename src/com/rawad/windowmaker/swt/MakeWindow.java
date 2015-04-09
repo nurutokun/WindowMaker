@@ -14,6 +14,8 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class MakeWindow {
 
@@ -85,6 +87,12 @@ public class MakeWindow {
 		imageEditorTab.setText("Image Editor");
 
 		customCanvas = new CustomCanvas(tabFolder, SWT.NONE);
+		customCanvas.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				customCanvas.mouseDown(e);
+			}
+		});
 		customCanvas.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
 				customCanvas.render(e.gc);
