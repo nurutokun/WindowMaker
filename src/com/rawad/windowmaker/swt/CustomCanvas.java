@@ -27,6 +27,7 @@ public class CustomCanvas extends Canvas {
 		picture = new Image(getDisplay(), "res/test.png");
 		
 		try {
+			
 			audioStream = AudioSystem.getAudioInputStream(new File("res/test.wav"));
 			
 			sound = AudioSystem.getClip();
@@ -48,8 +49,6 @@ public class CustomCanvas extends Canvas {
 	}
 	
 	public void mouseDown(MouseEvent e) {
-		
-		System.out.println("playing sound...");
 		
 		if(sound.isRunning()) {
 			sound.stop();
