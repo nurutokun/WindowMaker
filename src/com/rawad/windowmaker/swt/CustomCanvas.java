@@ -52,9 +52,10 @@ public class CustomCanvas extends Canvas {
 		
 		if(sound.isRunning()) {
 			sound.stop();
-			sound.setFramePosition(0);
 		}
 		
+		sound.setFramePosition(0);
+			
 		sound.start();
 		
 	}
