@@ -19,12 +19,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public static final int MAX_PEN_WIDTH = 100;
 	public static final int MAX_PEN_HEIGHT = 100;
 	
+	private static final Color INIT_PIC_BACKGROUND = new Color(0xFFFFFFFF);
+	
 	/**
 	 * Big, Long, number
 	 */
 	private static final long serialVersionUID = 6101949493654211445L;
-	
-	private static final Color INIT_PIC_BACKGROUND = new Color(0xFFFFFFFF);
 	
 	private static MakeWindow window;
 	
@@ -70,6 +70,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penColor = new Color(0, 0, 0);
 		
 		dragging = false;
+		edited = false;
+		resizing = false;
 		
 		window = MakeWindow.instance();
 		
@@ -134,6 +136,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		try {
 			if(!filePath.equals("") && edited) {
 				ImageIO.write(displayPicture, filePath.substring(filePath.length()-3), new File(filePath));
+				
+				edited = false;
 			}
 		} catch(IOException ex) {
 			ex.printStackTrace();
@@ -224,6 +228,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 					
 				}
 				
+				edited = true;
 				resizing = true;
 				
 			}
@@ -381,6 +386,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		this.filePath = filePath;
 		
 		setPreferredSize(new Dimension(pic.getWidth() + boxWidth + 1, pic.getHeight() + boxHeight + 1));
+	}
+	
+	public boolean isEdited() {
+		return edited;
 	}
 	
 	public void setPenColor(Color c) {

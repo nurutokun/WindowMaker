@@ -58,6 +58,8 @@ public class MakeWindow {
 	private CustomPanel customPanel;
 
 	private JLabel infoLabel;
+	private JMenuItem mntmUndo;
+	private JMenuItem mntmRedo;
 
 	/**
 	 * Launch the application.
@@ -91,7 +93,20 @@ public class MakeWindow {
 
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-//				mntmSaveFile.doClick();// saves the file just in case
+				// mntmSaveFile.doClick();// saves the file just in case
+
+				if (customPanel.isEdited()) {
+					int re = JOptionPane
+							.showConfirmDialog(frmFrameTitle,
+									"There are unsaved changes in this. Do you want to save them?");
+
+					if (re == JOptionPane.OK_OPTION) {
+						customPanel.saveImage();
+					} else if (re == JOptionPane.CANCEL_OPTION) {
+						return;// Don't close
+					}
+				}
+
 				frmFrameTitle.dispose();
 				System.exit(0);
 			}
@@ -244,9 +259,9 @@ public class MakeWindow {
 			public void actionPerformed(ActionEvent e) {
 				Color c = JColorChooser.showDialog(frmFrameTitle,
 						"Choose your Color", customPanel.getPenColor());
-				
+
 				customPanel.setPenColor(c);
-				
+
 			}
 		});
 		mnOptions.add(mntmColour);
@@ -267,6 +282,16 @@ public class MakeWindow {
 			}
 		});
 		mnOptions.add(mntmPenType);
+
+		mntmUndo = new JMenuItem("Undo");
+		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+				InputEvent.CTRL_MASK));
+		mnOptions.add(mntmUndo);
+
+		mntmRedo = new JMenuItem("Redo");
+		mntmRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
+				InputEvent.CTRL_MASK));
+		mnOptions.add(mntmRedo);
 	}
 
 	private String getFileContent(String path) {
@@ -312,8 +337,8 @@ public class MakeWindow {
 	}
 
 	public void setInfo(int x, int y, int width, int height) {
-		infoLabel.setText("x,y: " + x + ", " + y + " | width,height: " + width
-				+ ", " + height);
+		infoLabel.setText("x, y: " + x + ", " + y + " | width, height: "
+				+ width + ", " + height);
 	}
 
 	public static MakeWindow instance() {
