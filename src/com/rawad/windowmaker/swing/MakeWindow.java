@@ -91,7 +91,7 @@ public class MakeWindow {
 
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				mntmSaveFile.doClick();// saves the file just in case
+//				mntmSaveFile.doClick();// saves the file just in case
 				frmFrameTitle.dispose();
 				System.exit(0);
 			}
@@ -243,10 +243,10 @@ public class MakeWindow {
 		mntmColour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Color c = JColorChooser.showDialog(frmFrameTitle,
-						"Choose your Color", new Color(0, 0, 0));
-
-				customPanel.setColor(c);
-
+						"Choose your Color", customPanel.getPenColor());
+				
+				customPanel.setPenColor(c);
+				
 			}
 		});
 		mnOptions.add(mntmColour);

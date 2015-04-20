@@ -57,7 +57,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	private int boxWidth = 6;
 	private int boxHeight = 6;
 	
+	private int potentialWidth;
+	private int potentialHeight;
+	
 	private boolean dragging;
+	private boolean resizing;
 	private boolean edited;
 	
 	public CustomPanel() {
@@ -81,6 +85,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		viewWidth = displayPicture.getWidth();
 		viewHeight = displayPicture.getHeight();
 		
+		potentialWidth = viewWidth;
+		potentialHeight = viewHeight;
+		
 		rightBox = new ResizerBox(viewWidth, viewHeight/2 - (boxHeight/2), boxWidth, boxHeight);
 		bottomBox = new ResizerBox(viewWidth/2 - (boxWidth/2), viewHeight, boxWidth, boxHeight);
 		cornerBox = new ResizerBox(viewWidth, viewHeight, boxWidth, boxHeight);
@@ -97,6 +104,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			g.drawImage(displayPicture, 0, 0, null);
 		} else {
 			g.drawString("Put A Pic In Me", getWidth()/2 - (50), getHeight()/2);
+		}
+		
+		if(resizing) {
+			g.setColor(Color.GRAY);
+			g.drawRect(-1, -1, potentialWidth, potentialHeight);
 		}
 		
 		rightBox.setX(viewWidth);
@@ -152,6 +164,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private void update(long timePassed) {
 		
+//		System.out.println("potential(width, height): " + potentialWidth + ", " + potentialHeight +
+//				" picture(width, height): " + displayPicture.getWidth() + ", " + displayPicture.getHeight());
+		
 		if(dragging) {//could check if we're in image's range but Graphics object don't care 'bout where it draws its pixels
 //			Using Raster:
 //			int[] pixels = new int[4];
@@ -183,31 +198,34 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			int dx = x2 - x1;
 			int dy = y2 - y1;
 			
-			if(viewWidth+dx > 0 && viewHeight+dy > 0) {
+			if(viewWidth + dx > 0 && viewHeight + dy > 0) {
 				if(rightBox.isDragging()) {
 					
-					viewWidth += (dx);
+					potentialWidth += (dx);
 					
 					cursor = Cursors.HORIZONTAL.getCursor();
 					
+					resizing = true;
+					
 				} else if(bottomBox.isDragging()) {
 					
-					viewHeight += (dy);
+					potentialHeight += (dy);
 					
 					cursor = Cursors.VERTICAL.getCursor();
 					
+					resizing = true;
+					
 				} else if(cornerBox.isDragging()) {
 					
-					viewWidth += (dx);
-					viewHeight += (dy);
+					potentialWidth += (dx);
+					potentialHeight += (dy);
 					
 					cursor = Cursors.DIAGONAL.getCursor();
 					
 				}
 				
-				setNewImageDimensions(viewWidth, viewHeight);
+				resizing = true;
 				
-				window.refreshScrollPane();
 			}
 			
 			
@@ -218,6 +236,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		setCursor(cursor);
 		
+		window.setInfo(x2, y2, potentialWidth, potentialHeight);
 		window.repaint();
 	}
 	
@@ -364,7 +383,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		setPreferredSize(new Dimension(pic.getWidth() + boxWidth + 1, pic.getHeight() + boxHeight + 1));
 	}
 	
-	public void setColor(Color c) {
+	public void setPenColor(Color c) {
 		
 		if(c == null) {
 			return;
@@ -372,6 +391,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		penColor = c;
 	}
+	
+	public Color getPenColor() {
+		return penColor;
+	}
+	
 	
 	public void setPenType(Shapes penType) {
 		
@@ -413,6 +437,25 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int x = e.getX();
 		int y = e.getY();
 		
+		handleCursorHover(x, y);
+		
+		Color temp = penColor;
+		
+		if(e.isMetaDown()) {
+			penColor = Color.WHITE;
+		}
+		
+		x2 = x;
+		y2 = y;
+		
+		update(0);
+		
+		penColor = temp;
+		
+	}
+	
+	private void handleCursorHover(int x, int y) {
+
 		if(rightBox.intersects(x, y)) {
 			
 			cursor = Cursors.HORIZONTAL.getCursor();
@@ -428,21 +471,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		} else {
 			cursor = Cursors.DEFAULT.getCursor();
 		}
-		
-		Color temp = penColor;
-		
-		if(e.isMetaDown()) {
-			penColor = Color.WHITE;
-		}
-		
-		x2 = x;
-		y2 = y;
-		
-		window.setInfo(x2, y2, viewWidth, viewHeight);
-		
-		update(0);
-		
-		penColor = temp;
 		
 	}
 	
@@ -527,36 +555,32 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(e.isMetaDown()) {
 			
-			dragging = true;
-			
-			x2 = y2 = x;
-			y1 = y2 = y;
-			
-			Color temp = penColor;
-			
-			penColor = Color.WHITE;
-			
-			update(0);
-			
-			penColor = temp;
-			
-		} else if(e.isAltDown()) {
-		
-		} else {
-			
-			if(rightBox.intersects(x, y)) {
+			if(resizing) {
+				cancelResizing();
 				
-				rightBox.setDragging(true);
-				
-			} else if(bottomBox.intersects(x, y)) {
-				
-				bottomBox.setDragging(true);
-				
-			} else if(cornerBox.intersects(x, y)) {
-				
-				cornerBox.setDragging(true);
+				stopDragging();
 				
 			} else {
+				
+				dragging = true;
+				
+				x2 = y2 = x;
+				y1 = y2 = y;
+				
+				Color temp = penColor;
+				
+				penColor = Color.WHITE;
+				
+				update(0);
+				
+				penColor = temp;
+			}
+			
+		} else if(e.isAltDown()) {
+			
+		} else {
+			
+			if(!boxesDragging(x, y)) { // boxesDragging handles all the dragging of the boxes
 				
 				dragging = true;
 				
@@ -569,6 +593,39 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		}
 	}
 	
+	private boolean boxesDragging(int x, int y) {
+		
+		boolean re = false;
+		
+		if(rightBox.intersects(x, y)) {
+			re = true;
+			rightBox.setDragging(re);
+			
+		} else if(bottomBox.intersects(x, y)) {
+			re = true;
+			bottomBox.setDragging(re);
+			
+		} else if(cornerBox.intersects(x, y)) {
+			re = true;
+			cornerBox.setDragging(re);
+			
+		}
+		
+		return re;
+		
+	}
+	
+	private void cancelResizing() {
+		
+		resizing = false;
+		
+		potentialWidth = viewWidth;
+		potentialHeight = viewHeight;
+		
+		cursor = Cursors.DEFAULT.getCursor();
+		
+	}
+	
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		
@@ -576,9 +633,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			dragging = false;
 			
-			rightBox.setDragging(false);
-			bottomBox.setDragging(false);
-			cornerBox.setDragging(false);
+			stopDragging();
 			
 			x1 = x2 = e.getX();
 			y1 = y2 = e.getY();
@@ -596,15 +651,38 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		} else {
 			dragging = false;
 			
-			rightBox.setDragging(false);
-			bottomBox.setDragging(false);
-			cornerBox.setDragging(false);
+			potentiallyResize();
+			
+			stopDragging();
 			
 			x1 = x2 = e.getX();
 			y1 = y2 = e.getY();
 			
 			update(0);
 		}
+		
+	}
+	
+	private void potentiallyResize() {
+		
+		if(resizing) {
+			
+			viewWidth = potentialWidth;
+			viewHeight = potentialHeight;
+			
+			setNewImageDimensions(viewWidth, viewHeight);
+			
+			resizing = false;
+			
+		}
+	}
+	
+	private void stopDragging() {
+		
+		rightBox.setDragging(false);
+		bottomBox.setDragging(false);
+		cornerBox.setDragging(false);
+		
 	}
 	
 	private class ResizerBox {

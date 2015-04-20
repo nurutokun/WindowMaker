@@ -1,8 +1,11 @@
 package com.rawad.windowmaker.swt;
 
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -10,12 +13,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
+
+import sun.security.krb5.Realm;
 
 public class MakeWindow {
 
@@ -31,11 +32,14 @@ public class MakeWindow {
 	 */
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
+		
+		MakeWindow window = new MakeWindow();
+		window.open();
+		
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
 			public void run() {
 				try {
-					MakeWindow window = new MakeWindow();
-					window.open();
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
