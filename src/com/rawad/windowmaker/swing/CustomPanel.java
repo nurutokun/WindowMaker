@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-public class CustomPanel extends JPanel implements MouseListener, MouseMotionListener {
+public class CustomPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	public static final int MAX_PEN_WIDTH = 100;
 	public static final int MAX_PEN_HEIGHT = 100;
@@ -28,6 +30,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private static MakeWindow window;
 	
+	private BufferedImage originalPicture;
 	private BufferedImage displayPicture;
 	
 	private Color penColor;
@@ -60,17 +63,19 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	private int potentialWidth;
 	private int potentialHeight;
 	
+	private int scaleFactor;
+	
 	private boolean dragging;
 	private boolean resizing;
-	private boolean edited;
 	
 	public CustomPanel() {
 		super();
 		
 		penColor = new Color(0, 0, 0);
 		
+		scaleFactor = 100;
+		
 		dragging = false;
-		edited = false;
 		resizing = false;
 		
 		window = MakeWindow.instance();
@@ -96,6 +101,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		addMouseWheelListener(this);
 		
 	}
 	
@@ -110,7 +116,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(resizing) {
 			g.setColor(Color.GRAY);
-			g.drawRect(-1, -1, potentialWidth, potentialHeight);
+			g.drawRect(0, 0, potentialWidth, potentialHeight);
 		}
 		
 		rightBox.setX(viewWidth);
@@ -134,10 +140,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void saveImage() {
 		
 		try {
-			if(!filePath.equals("") && edited) {
+			if(!filePath.equals("") && isEdited()) {
+				originalPicture = displayPicture;
+				
 				ImageIO.write(displayPicture, filePath.substring(filePath.length()-3), new File(filePath));
 				
-				edited = false;
 			}
 		} catch(IOException ex) {
 			ex.printStackTrace();
@@ -150,20 +157,24 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		try {
 			displayPicture = ImageIO.read(new File("res/test.png"));
 			
-			setPreferredSize(new Dimension(displayPicture.getWidth() + boxWidth + 1, displayPicture.getHeight() + boxHeight + 1));
+			setTotalPreferredSize(displayPicture.getWidth(), displayPicture.getHeight());
 			
 		} catch(IOException ex) {
 			
 			displayPicture = new BufferedImage(viewWidth, viewHeight, BufferedImage.TYPE_INT_ARGB);
 			
-			setPreferredSize(new Dimension(viewWidth + boxWidth + 1, viewHeight + boxHeight + 1));
+			setTotalPreferredSize(viewWidth, viewHeight);
 			
 			for(int i = 0; i < displayPicture.getHeight(); i++) {
 				for(int j = 0; j < displayPicture.getWidth(); j++) {
 					displayPicture.setRGB(j, i, INIT_PIC_BACKGROUND.getRGB());
 				}
 			}
+			
+		} finally {
+			originalPicture = displayPicture;
 		}
+		
 	}
 	
 	private void update(long timePassed) {
@@ -188,12 +199,32 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			Graphics g = displayPicture.createGraphics();
 			
 			g.setColor(penColor);
-			
 			g.translate(-(penWidth/2), -(penHeight/2));
 			
 			render(g);
 			
-			edited = true;
+			/* How not to do it: Heap Space Exception
+			BufferedImage temp = getScaledImage(originalPicture, scaleFactor);
+			g = temp.getGraphics();
+			
+			g.setColor(penColor);
+			g.translate(-(penWidth/2), -(penHeight/2));
+			
+			render(g);
+			
+			temp = getScaledImage(temp, 1d/scaleFactor);
+			
+			originalPicture = temp;*/
+			
+			// TODO: Rescaling the image work fine, but we have to figure out a way to append the changed made to the original while keeping the
+			// scale factor so that resizing after that will include any changes for the current session. Should scale everything up or something
+			
+			g = originalPicture.createGraphics();
+			
+			g.setColor(penColor);
+			g.translate(-(penWidth/2), -(penHeight/2));
+			
+			render(g);
 			
 		}
 		
@@ -228,7 +259,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 					
 				}
 				
-				edited = true;
 				resizing = true;
 				
 			}
@@ -328,18 +358,21 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private void setPixel(Graphics g, int x, int y) {
 		
+		int tempPenWidth = (penWidth*scaleFactor)/100;
+		int tempPenHeight = (penHeight*scaleFactor)/100;
+		
 		switch(penType) {
 		
 		case RECTANGLE:
-			g.fillRect(x, y, penWidth, penHeight);
+			g.fillRect(x, y, tempPenWidth, tempPenHeight);
 			break;
 			
 		case CIRCLE:
-			g.fillOval(x, y, penWidth, penHeight);
+			g.fillOval(x, y, tempPenWidth, tempPenHeight);
 			break;
 			
 		case TRIANGLE:
-			g.drawRect(x, y, penWidth, penHeight);
+			g.drawRect(x, y, tempPenWidth, tempPenHeight);
 			break;
 			
 		default:
@@ -374,9 +407,22 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		displayPicture = temp;
 		
+		setTotalPreferredSize(width, height);
+		
+	}
+	
+	/**
+	 * Accounts for boxWidth, boxHeight and a small margin of 1 pixel, as well.
+	 * 
+	 * @param width
+	 * @param height
+	 */
+	private void setTotalPreferredSize(int width, int height) {
+		
 		setPreferredSize(new Dimension(width + boxWidth + 1, height + boxHeight + 1));
 		
-		window.refreshScrollPane();
+		if(window != null)
+			window.refreshScrollPane();
 		
 	}
 	
@@ -385,11 +431,70 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		this.filePath = filePath;
 		
-		setPreferredSize(new Dimension(pic.getWidth() + boxWidth + 1, pic.getHeight() + boxHeight + 1));
+		setTotalPreferredSize(pic.getWidth(), pic.getHeight());
+	}
+	
+	/**
+	 * {@code factor} should be as a percent multiplied by a hundred, not decimal form
+	 * 
+	 * @param factor
+	 */
+	public void rescaleImage(int scaleFactor) {
+		
+		this.scaleFactor = scaleFactor;
+		
+		displayPicture = getScaledImage(originalPicture, this.scaleFactor);
+		
+		/* Could convert this into a helper method*/
+		viewWidth = displayPicture.getWidth();
+		viewHeight = displayPicture.getHeight();
+		
+		potentialWidth = viewWidth;
+		potentialHeight = viewHeight;
+		/**/
+		
+		update(0);
+		
+		setTotalPreferredSize(viewWidth, viewHeight);
+		
+	}
+	
+	private BufferedImage getScaledImage(BufferedImage original, double scaleFactor) {
+		
+		int w1 = original.getWidth();
+		int w2 = (int) (w1 * (scaleFactor/100d));
+		
+		int h1 = original.getHeight();
+		int h2 = (int) (h1 * (scaleFactor/100d));
+		
+		if(w2 <= 0 || h2 <= 0) {
+			return original;
+		}
+		
+		BufferedImage resizedImage = new BufferedImage(w2, h2, BufferedImage.TYPE_INT_ARGB);
+		
+		int x_ratio = (int) ((w1 << 16)/w2) + 1;// 1 is the error factor, preventing a zero caused by premature rounding
+		int y_ratio = (int) ((h1 << 16)/h2) + 1;
+		
+		int x2, y2;
+		
+		for(int i = 0; i < h2; i++) {
+			for(int j = 0; j < w2; j++) {
+				
+				x2 = ((j*x_ratio)>>16);
+				y2 = ((i*y_ratio)>>16);
+				
+				resizedImage.setRGB(j, i, original.getRGB(x2, y2));
+				
+			}
+		}
+		
+		return resizedImage;
+		
 	}
 	
 	public boolean isEdited() {
-		return edited;
+		return !originalPicture.equals(displayPicture);
 	}
 	
 	public void setPenColor(Color c) {
@@ -692,6 +797,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		bottomBox.setDragging(false);
 		cornerBox.setDragging(false);
 		
+	}
+	
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// TODO: send an event to the zoom slider in the MakeWindow class
 	}
 	
 	private class ResizerBox {

@@ -52,7 +52,7 @@ public class MakeWindow {
 	private JScrollPane scrollPane_1;
 
 	private JTextArea textArea;
-	private JSlider slider;
+	private JSlider pensizeSlider;
 
 	private JMenuItem mntmSaveFile;
 	private CustomPanel customPanel;
@@ -60,6 +60,7 @@ public class MakeWindow {
 	private JLabel infoLabel;
 	private JMenuItem mntmUndo;
 	private JMenuItem mntmRedo;
+	private JSlider zoomSlider;
 
 	/**
 	 * Launch the application.
@@ -133,9 +134,9 @@ public class MakeWindow {
 		tabbedPane.addTab("Image Editor", null, panel, null);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] { 97, 246 };
-		gbl_panel.rowHeights = new int[] { 372, 24, 0 };
+		gbl_panel.rowHeights = new int[] { 372, 0, 24, 0 };
 		gbl_panel.columnWeights = new double[] { 1.0, 0.0 };
-		gbl_panel.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panel.rowWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
 		scrollPane_1 = new JScrollPane();
@@ -150,11 +151,23 @@ public class MakeWindow {
 		customPanel = new CustomPanel();
 		scrollPane_1.setViewportView(customPanel);
 
-		slider = new JSlider();
-		slider.setMajorTickSpacing((CustomPanel.MAX_PEN_HEIGHT + CustomPanel.MAX_PEN_WIDTH / 2) / 10);
-		slider.setMinorTickSpacing((CustomPanel.MAX_PEN_HEIGHT + CustomPanel.MAX_PEN_WIDTH / 2) / 10);
-		slider.setValue(25);
-		slider.addChangeListener(new SliderChangeListener());
+		SliderChangeListener sliderChangeListener = new SliderChangeListener();
+
+		pensizeSlider = new JSlider();
+		pensizeSlider
+				.setMajorTickSpacing((CustomPanel.MAX_PEN_HEIGHT + CustomPanel.MAX_PEN_WIDTH / 2) / 10);
+		pensizeSlider
+				.setMinorTickSpacing((CustomPanel.MAX_PEN_HEIGHT + CustomPanel.MAX_PEN_WIDTH / 2) / 10);
+		pensizeSlider.setValue(25);
+		pensizeSlider.addChangeListener(sliderChangeListener);
+		pensizeSlider.setToolTipText("Pen Size");
+		pensizeSlider.setPaintLabels(true);
+		GridBagConstraints gbc_pensizeSlider = new GridBagConstraints();
+		gbc_pensizeSlider.insets = new Insets(0, 0, 5, 0);
+		gbc_pensizeSlider.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pensizeSlider.gridx = 1;
+		gbc_pensizeSlider.gridy = 1;
+		panel.add(pensizeSlider, gbc_pensizeSlider);
 
 		infoLabel = new JLabel("x, y: 6969, 6969 | width, height: "
 				+ customPanel.getImageWidth() + ", "
@@ -163,15 +176,24 @@ public class MakeWindow {
 		gbc_infoLabel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_infoLabel.insets = new Insets(0, 0, 0, 5);
 		gbc_infoLabel.gridx = 0;
-		gbc_infoLabel.gridy = 1;
+		gbc_infoLabel.gridy = 2;
 		panel.add(infoLabel, gbc_infoLabel);
-		slider.setToolTipText("Pen Size");
-		slider.setPaintLabels(true);
-		GridBagConstraints gbc_slider = new GridBagConstraints();
-		gbc_slider.fill = GridBagConstraints.HORIZONTAL;
-		gbc_slider.gridx = 1;
-		gbc_slider.gridy = 1;
-		panel.add(slider, gbc_slider);
+
+		zoomSlider = new JSlider();
+		zoomSlider.setSnapToTicks(true);
+		zoomSlider.addChangeListener(sliderChangeListener);
+		zoomSlider.setPaintTicks(true);
+		zoomSlider.setMinorTickSpacing(25);
+		zoomSlider.setMajorTickSpacing(100);
+		zoomSlider.setToolTipText("Zoom");
+		zoomSlider.setValue(100);
+		zoomSlider.setMaximum(400);
+		zoomSlider.setMinimum(25);
+		GridBagConstraints gbc_zoomSlider = new GridBagConstraints();
+		gbc_zoomSlider.fill = GridBagConstraints.BOTH;
+		gbc_zoomSlider.gridx = 1;
+		gbc_zoomSlider.gridy = 2;
+		panel.add(zoomSlider, gbc_zoomSlider);
 
 		JMenuBar menuBar = new JMenuBar();
 		frmFrameTitle.setJMenuBar(menuBar);
@@ -367,10 +389,19 @@ public class MakeWindow {
 	}
 
 	private class SliderChangeListener implements ChangeListener {
+
 		public void stateChanged(ChangeEvent e) {
 			JSlider source = (JSlider) e.getSource();
 
-			customPanel.setPenSize(source.getValue());
+			if (source.equals(pensizeSlider)) {
+				customPanel.setPenSize(source.getValue());
+
+			} else if (source.equals(zoomSlider)) {
+				customPanel.rescaleImage(source.getValue());
+
+			}
+
 		}
 	}
+
 }
