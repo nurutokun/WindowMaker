@@ -67,6 +67,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private boolean dragging;
 	private boolean resizing;
+	private boolean edited;
 	
 	public CustomPanel() {
 		super();
@@ -77,6 +78,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		dragging = false;
 		resizing = false;
+		edited = false;
 		
 		window = MakeWindow.instance();
 		
@@ -141,10 +143,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		try {
 			if(!filePath.equals("") && isEdited()) {
-				originalPicture = displayPicture;
 				
-				ImageIO.write(displayPicture, filePath.substring(filePath.length()-3), new File(filePath));
+				ImageIO.write(originalPicture, filePath.substring(filePath.length()-3), new File(filePath));
 				
+				edited = false;
 			}
 		} catch(IOException ex) {
 			ex.printStackTrace();
@@ -183,49 +185,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //				" picture(width, height): " + displayPicture.getWidth() + ", " + displayPicture.getHeight());
 		
 		if(dragging) {//could check if we're in image's range but Graphics object don't care 'bout where it draws its pixels
-//			Using Raster:
-//			int[] pixels = new int[4];
-//			
-//			pixels[0] = penColor.getRed();
-//			pixels[1] = penColor.getGreen();
-//			pixels[2] = penColor.getBlue();
-//			pixels[3] = penColor.getAlpha();
-//			
-//			raster.setPixel(x, y, pixels);
-//			
-//			displayPicture.setData(raster);
-//		
-//			Using Graphics Object:
-			Graphics g = displayPicture.createGraphics();
 			
-			g.setColor(penColor);
-			g.translate(-(penWidth/2), -(penHeight/2));
+			renderPenStrokes();
 			
-			render(g);
-			
-			/* How not to do it: Heap Space Exception
-			BufferedImage temp = getScaledImage(originalPicture, scaleFactor);
-			g = temp.getGraphics();
-			
-			g.setColor(penColor);
-			g.translate(-(penWidth/2), -(penHeight/2));
-			
-			render(g);
-			
-			temp = getScaledImage(temp, 1d/scaleFactor);
-			
-			originalPicture = temp;*/
-			
-			// TODO: Rescaling the image work fine, but we have to figure out a way to append the changed made to the original while keeping the
-			// scale factor so that resizing after that will include any changes for the current session. Should scale everything up or something
-			
-			g = originalPicture.createGraphics();
-			
-			g.setColor(penColor);
-			g.translate(-(penWidth/2), -(penHeight/2));
-			
-			render(g);
-			
+			edited = true;
 		}
 		
 		if(rightBox.isDragging() || bottomBox.isDragging() || cornerBox.isDragging()) {
@@ -275,13 +238,13 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		window.repaint();
 	}
 	
-	private void render(Graphics g) {
+	private void renderPenStrokes() {
 		
-		bresenhamAlgorithm(g, x1, y1, x2, y2);
+		bresenhamLineAlgorithm(x1, y1, x2, y2);// Draws a single stroke from x1,y1 to x2,y2
 		
 	}
 	
-	private void bresenhamAlgorithm(Graphics g, int x1, int y1, int x2, int y2) {
+	private void bresenhamLineAlgorithm(int x1, int y1, int x2, int y2) {
 		
 		boolean xy_swap = false;
 		
@@ -325,9 +288,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		for(x = x1; x < x2; x++) {
 			
 			if(xy_swap) {
-				setPixel(g, y, x);
+				drawPenStroke(y, x);
 			} else {
-				setPixel(g, x, y);
+				drawPenStroke(x, y);
 			}
 			
 			e += m_num;
@@ -343,43 +306,72 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			}
 			
 			if(xy_swap) {
-				setPixel(g, y, x);
+				drawPenStroke(y, x);
 			} else {
-				setPixel(g, x, y);
+				drawPenStroke(x, y);
 			}
 			
 		}
 		
 		if(x1 == x2 && y1 == y2) {
-			setPixel(g, x, y);
+			drawPenStroke(x, y);
 		}
 		
 	}
 	
-	private void setPixel(Graphics g, int x, int y) {
+	private void drawPenStroke(int x, int y) {
 		
-		int tempPenWidth = (penWidth*scaleFactor)/100;
-		int tempPenHeight = (penHeight*scaleFactor)/100;
+		int tempWidth = (penWidth*scaleFactor)/100;
+		int tempHeight = (penHeight*scaleFactor)/100;
+		
+		x = x - (tempWidth/2);
+		y = y - (tempHeight/2);
 		
 		switch(penType) {
 		
 		case RECTANGLE:
-			g.fillRect(x, y, tempPenWidth, tempPenHeight);
+			drawRectangle(x, y, tempWidth, tempHeight);
+//			originalPicture.setRGB((x*100)/scaleFactor, (y*100)/scaleFactor, getPenRGB());
+			//displayPicture.setRGB(x, y, getPenRGB());// scale the displayPicture's pixels
 			break;
 			
 		case CIRCLE:
-			g.fillOval(x, y, tempPenWidth, tempPenHeight);
 			break;
 			
 		case TRIANGLE:
-			g.drawRect(x, y, tempPenWidth, tempPenHeight);
 			break;
 			
 		default:
-			g.setColor(Color.RED);
-			g.drawString("no penType error; this shouldn't happen. It is actaully impressive you made this happen. Bravo to you.", x, y);
+//			g.setColor(Color.RED);
+//			g.drawString("no penType error; this shouldn't happen. It is actaully impressive you made this happen. Bravo to you.", x, y);
 			break;
 			
+		}
+		
+	}
+	
+	private void drawRectangle(int x, int y, int strokeWidth, int strokeHeight) {
+		
+//		System.out.printf("x,y: %s,%s | width, height: %s,%s\n", x, y, strokeWidth, strokeHeight);
+		
+		int width = strokeWidth + x;
+		int height = strokeHeight + y;
+		
+		for(int i = x; i < width; i++) {
+			for(int j = y; j < height; j++) {
+				
+				if(	i < 0 || j < 0) {
+					continue;
+				}
+				
+				try {
+					displayPicture.setRGB(i, j, getPenRGB());
+					originalPicture.setRGB((i * 100)/scaleFactor, (j * 100)/scaleFactor, getPenRGB());
+				} catch(ArrayIndexOutOfBoundsException ex) {
+					break;
+				}
+				
+			}
 		}
 		
 	}
@@ -405,7 +397,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			}
 		}
 		
-		displayPicture = temp;
+		originalPicture = displayPicture = temp;
 		
 		setTotalPreferredSize(width, height);
 		
@@ -421,13 +413,17 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		setPreferredSize(new Dimension(width + boxWidth + 1, height + boxHeight + 1));
 		
-		if(window != null)
+		viewWidth = width;
+		viewHeight = height;
+		
+		if(window != null) {
 			window.refreshScrollPane();
+		}
 		
 	}
 	
 	public void setDisplayPicture(BufferedImage pic, String filePath) {
-		displayPicture = pic;
+		originalPicture = displayPicture = pic;
 		
 		this.filePath = filePath;
 		
@@ -494,7 +490,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	}
 	
 	public boolean isEdited() {
-		return !originalPicture.equals(displayPicture);
+		return edited;
 	}
 	
 	public void setPenColor(Color c) {
@@ -510,6 +506,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		return penColor;
 	}
 	
+	public int getPenRGB() {
+		return penColor.getRGB();
+	}
 	
 	public void setPenType(Shapes penType) {
 		
@@ -653,14 +652,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void mouseClicked(MouseEvent e) {}
 	
 	@Override
-	public void mouseEntered(MouseEvent e) {
-		
-	}
+	public void mouseEntered(MouseEvent e) {}
 	
 	@Override
-	public void mouseExited(MouseEvent e) {
-		
-	}
+	public void mouseExited(MouseEvent e) {}
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -772,6 +767,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			x1 = x2 = e.getX();
 			y1 = y2 = e.getY();
 			
+			rescaleImage(scaleFactor);// update the strokes to fix the pixels
+			
 			update(0);
 		}
 		
@@ -801,7 +798,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		// TODO: send an event to the zoom slider in the MakeWindow class
+		
+		if(e.isControlDown()) {
+			window.changeZoom(-e.getUnitsToScroll());
+		}
+		
 	}
 	
 	private class ResizerBox {
