@@ -41,8 +41,11 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.GridLayout;
 
 public class MakeWindow {
+
+	public static final int MIN_ZOOM_TICK_SPACING = 25;
 
 	private static MakeWindow window;
 
@@ -116,7 +119,7 @@ public class MakeWindow {
 		frmFrameTitle.setTitle("Frame Tit-le");
 		frmFrameTitle.setBounds(0, 0, 500, 500);
 		frmFrameTitle.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frmFrameTitle.getContentPane().setLayout(new BorderLayout(0, 0));
+		frmFrameTitle.getContentPane().setLayout(new GridLayout(0, 1, 10, 10));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		frmFrameTitle.getContentPane().add(tabbedPane);
@@ -183,12 +186,12 @@ public class MakeWindow {
 		zoomSlider.setSnapToTicks(true);
 		zoomSlider.addChangeListener(sliderChangeListener);
 		zoomSlider.setPaintTicks(true);
-		zoomSlider.setMinorTickSpacing(25);
-		zoomSlider.setMajorTickSpacing(100);
-		zoomSlider.setToolTipText("Zoom");
+		zoomSlider.setMinorTickSpacing(MIN_ZOOM_TICK_SPACING);
+		zoomSlider.setMajorTickSpacing(MIN_ZOOM_TICK_SPACING * 4);
+		zoomSlider.setToolTipText("Zoom: " + zoomSlider.getValue() + "%");
 		zoomSlider.setValue(100);
-		zoomSlider.setMaximum(400);
-		zoomSlider.setMinimum(25);
+		zoomSlider.setMaximum(MIN_ZOOM_TICK_SPACING * 32);
+		zoomSlider.setMinimum(MIN_ZOOM_TICK_SPACING);
 		GridBagConstraints gbc_zoomSlider = new GridBagConstraints();
 		gbc_zoomSlider.fill = GridBagConstraints.BOTH;
 		gbc_zoomSlider.gridx = 1;
@@ -363,6 +366,21 @@ public class MakeWindow {
 				+ width + ", " + height);
 	}
 
+	public void changeZoom(int delta) {
+
+		int value = zoomSlider.getValue();
+
+		if (delta < 0) {
+			zoomSlider.setValue(value - MIN_ZOOM_TICK_SPACING);// adds exactly
+																// the minimum
+																// amount of
+																// tick spacing
+		} else if (delta > 0) {
+			zoomSlider.setValue(value + MIN_ZOOM_TICK_SPACING);
+		}
+
+	}
+
 	public static MakeWindow instance() {
 		return window;
 	}
@@ -392,13 +410,15 @@ public class MakeWindow {
 
 		public void stateChanged(ChangeEvent e) {
 			JSlider source = (JSlider) e.getSource();
+			int value = source.getValue();
 
 			if (source.equals(pensizeSlider)) {
-				customPanel.setPenSize(source.getValue());
+				customPanel.setPenSize(value);
 
 			} else if (source.equals(zoomSlider)) {
-				customPanel.rescaleImage(source.getValue());
+				customPanel.rescaleImage(value);
 
+				zoomSlider.setToolTipText("Zoom: " + value + "%");
 			}
 
 		}
