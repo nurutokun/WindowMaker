@@ -85,7 +85,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penType = Shapes.CIRCLE;//rectangle by default
+		penType = Shapes.RECTANGLE;//rectangle by default
 		
 		filePath = "res/test.png";
 		
