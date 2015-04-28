@@ -1,64 +1,117 @@
 package com.rawad.windowmaker.swing;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.EmptyStackException;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
 public class ChangeManager {
 	
-	private Queue<Change> changeList;
-	private Queue<Change> undoneChanges;
+	private Stack<Change> changeList;
+	private Stack<Change> undoneChanges;
 	
 	private Change currentChange;
+	private Change currentUndoneChange;
 	
-	private boolean reverting;
+	private boolean undoing;
+	private boolean redoing;
 	
 	public ChangeManager() {
 		
-		changeList = new LinkedList<Change>();
-		undoneChanges = new LinkedList<Change>();
+		changeList = new Stack<Change>();
+		undoneChanges = new Stack<Change>();
 		
 		currentChange = new Change();
+		currentUndoneChange = new Change();
 		
-		reverting = false;
+		undoing = false;
+		redoing = false;
 		
 	}
 	
 	public void changePixel(int x, int y, int oldColor) {
-		currentChange.addEdit(x, y, oldColor);
+		
+		if(undoing) {
+			
+			// Going from newColor to oldColor therefore save oldColor
+			currentUndoneChange.addEdit(x, y, oldColor);
+			
+		} else if(redoing) {
+			
+			// Going from 
+			currentChange.addEdit(x, y, oldColor);
+			
+		} else {
+			currentChange.addEdit(x, y, oldColor);
+			
+		}
+		
+	}
+	
+	public void redoPixel(int x, int y, int color) {
+		currentUndoneChange.addEdit(x, y, color);
 	}
 	
 	public void changeDimensions(int oldWidth, int oldHeight) {
 		currentChange.addEdit(oldWidth, oldHeight);
 	}
 	
-	public void stopRecordingChange() {
-		changeList.add(currentChange);
+	public void stopRecordingUndoChange() {
 		
+		changeList.add(currentChange);
 		currentChange = new Change();
+	}
+	
+	public void stopRecordingRedoChange() {
+		
+		undoneChanges.push(currentUndoneChange);
+		currentUndoneChange = new Change();
+		
 	}
 	
 	public void undoChange(CustomPanel drawingCanvas) {
 		
-		reverting = true;
+		undoing = true;
 		
 		try {
-			Change change = changeList.remove();
+			Change change = changeList.pop();
 			
-			change.undoChange(drawingCanvas);
+			change.undoOrRedoChange(drawingCanvas);
 			
-			undoneChanges.add(change);
-		} catch(NoSuchElementException ex) {
-			System.out.println("Change not found...");
+			stopRecordingRedoChange();
+			
+		} catch(EmptyStackException ex) {
+			System.out.println("Undo change not found...");
 		}
 		
-		reverting = false;
+		undoing = false;
 		
 	}
 	
-	public boolean isReverting() {
-		return reverting;
+	public void redoChange(CustomPanel drawingCanvas) {
+		
+		redoing = true;
+		
+		try {
+			Change change = undoneChanges.pop();
+			
+			change.undoOrRedoChange(drawingCanvas);
+			
+			stopRecordingUndoChange();
+			
+		} catch(EmptyStackException ex) {
+			System.out.println("Redo change not found...");
+		}
+		
+		redoing = false;
+		
+	}
+	
+	public boolean isUndoing() {
+		return undoing;
+	}
+	
+	public boolean isRedoing() {
+		return redoing;
 	}
 	
 	private class Change {
@@ -69,22 +122,28 @@ public class ChangeManager {
 			singleEdits = new LinkedList<Integer[]>();
 		}
 		
-		public void undoChange(CustomPanel drawingCanvas) {
+		public void undoOrRedoChange(CustomPanel drawingCanvas) {
 			
 			// Go through all pixels and change them AND/OR change the size of the image
 			
 			LinkedList<Integer[]> temp = singleEdits;
 			
-			for(int i = 0; i < temp.size(); i++) {
+			int size = temp.size();
+			
+			System.out.println(size);
+			
+			for(int i = 0; i < size; i++) {
 				Integer[] currentEdit = temp.remove();
 				
-				handleEdit(drawingCanvas, currentEdit);
+//				System.out.println("Redoing? " + redoing + " i: " + i);
+				
+				handleEditUndoOrRedo(drawingCanvas, currentEdit);
 				
 			}
 			
 		}
 		
-		private void handleEdit(CustomPanel drawingCanvas, Integer[] currentEdit) {
+		private void handleEditUndoOrRedo(CustomPanel drawingCanvas, Integer[] currentEdit) {
 			
 			ChangeType id = ChangeType.getChangeTypeById(currentEdit[0]);
 			
@@ -96,8 +155,7 @@ public class ChangeManager {
 				
 				int color = currentEdit[3];
 				
-				drawingCanvas.setPixel(x, y, color ^ 0xFFFFFF);
-				drawingCanvas.rescaleImage(drawingCanvas.getScaleFactor());
+				drawingCanvas.setPixel(x, y, color);
 //				System.out.printf("changed pixel: %s, %s to color: %s\n", x, y, color);
 				break;
 			
@@ -116,9 +174,34 @@ public class ChangeManager {
 		public void addEdit(int x, int y, int color) {
 			Integer[] edit = new Integer[]{ChangeType.PIXEL.getId(), x, y, color};
 			
-			if(edit != singleEdits.peek()) {
+			Integer[] previousEdit = singleEdits.peek();
+			
+//			System.out.printf("x,y: %s, %s color: %s \n", x, y, color);
+			
+			boolean addEdit = true;
+			
+			int prevX = 0;
+			int prevY = 0;
+			int prevColor = 0;
+			
+			if(previousEdit != null) {
+				
+				prevX = previousEdit[1];
+				prevY = previousEdit[2];
+				prevColor = previousEdit[3];
+				
+				if(prevX == x && prevY == y && prevColor == color) {
+					addEdit = false;
+				}
+				
+			}
+			
+			if(addEdit) {
 				singleEdits.add(edit);
 			}
+			
+//			System.out.println(singleEdits.size() + " - " + previousEdit + " - x, y: " + prevX + ", " + prevY + " color: " + prevColor + 
+//									" newX, newY: " + x + ", " + y + " newColor: " + color);
 			
 		}
 		

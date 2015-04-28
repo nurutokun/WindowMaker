@@ -315,14 +315,17 @@ public class MakeWindow {
 			}
 		});
 		mnOptions.add(mntmPenType);
-
+		
+		MenuItemActionListener mntmListener = new MenuItemActionListener();
+		
 		mntmUndo = new JMenuItem("Undo");
-		mntmUndo.addActionListener(new MenuItemActionListener());
+		mntmUndo.addActionListener(mntmListener);
 		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
 				InputEvent.CTRL_MASK));
 		mnOptions.add(mntmUndo);
 
 		mntmRedo = new JMenuItem("Redo");
+		mntmRedo.addActionListener(mntmListener);
 		mntmRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
 				InputEvent.CTRL_MASK));
 		mnOptions.add(mntmRedo);
@@ -440,6 +443,8 @@ public class MakeWindow {
 
 			if (source == mntmUndo) {
 				customPanel.undo();
+			} else if(source == mntmRedo) {
+				customPanel.redo();
 			}
 
 		}

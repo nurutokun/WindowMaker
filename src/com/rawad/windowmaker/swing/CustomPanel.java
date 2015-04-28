@@ -385,6 +385,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				try {
 					
 					setPixel(i, j, getPenRGB());
+					
 				} catch(ArrayIndexOutOfBoundsException ex) {
 					break;
 				}
@@ -444,40 +445,41 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int scaledY = (y * 100)/scaleFactor;
 		
 		int prevColor = originalPicture.getRGB(scaledX, scaledY);
-			
-		try {
-			originalPicture.setRGB(scaledX, scaledY, getPenRGB());
-			
-//			System.out.printf("setting pixel: %s, %s from: %s to color: %s\n", scaledX, scaledY,
-//				Integer.toHexString(prevColor), Integer.toHexString(color));
-		} catch(Exception ex) {}
 		
-		double pixelLength = scaleFactor/100d;
-		
-		pixelLength = Math.round(pixelLength) == 0? 1:pixelLength;
-		
-		x = (int) (Math.floor((double)(x)/pixelLength));
-		y = (int) (Math.floor((double)(y)/pixelLength));
-		
-		x *= pixelLength;
-		y *= pixelLength;
-		
-//		System.out.printf("pixelLength: %s. x,y: %s, %s\n", pixelLength, x, y);
-		
-		for(int i = x; i < pixelLength + x; i++) {
-			for(int j = y; j < pixelLength + y; j++) {
+		if(prevColor != color) {
+			try {
 				
-				try {
-					displayPicture.setRGB(i, j, color);
+				originalPicture.setRGB(scaledX, scaledY, color);
+				
+				changeManager.changePixel(x, y, prevColor);
 					
-					if(!changeManager.isReverting()) {
-						changeManager.changePixel(i, j, prevColor);
+//				System.out.printf("setting pixel: %s, %s from: %s to color: %s\n", scaledX, scaledY,
+//					Integer.toHexString(prevColor), Integer.toHexString(color));
+			} catch(Exception ex) {}
+			
+			double pixelLength = scaleFactor/100d;
+			
+			pixelLength = Math.round(pixelLength) == 0? 1:pixelLength;
+			
+			x = (int) (Math.floor((double)(x)/pixelLength));
+			y = (int) (Math.floor((double)(y)/pixelLength));
+			
+			x *= pixelLength;
+			y *= pixelLength;
+			
+//			System.out.printf("pixelLength: %s. x,y: %s, %s\n", pixelLength, x, y);
+			
+			for(int i = x; i < pixelLength + x; i++) {
+				for(int j = y; j < pixelLength + y; j++) {
+					
+					try {
+						displayPicture.setRGB(i, j, color);
+						
+					} catch(Exception ex) {
+						return;
 					}
 					
-				} catch(Exception ex) {
-					return;
 				}
-				
 			}
 		}
 		
@@ -485,6 +487,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public void undo() {
 		changeManager.undoChange(this);
+		rescaleImage(scaleFactor);
+	}
+	
+	public void redo() {
+		changeManager.redoChange(this);
+		rescaleImage(scaleFactor);
 	}
 	
 	private int abs(int a) {
@@ -875,7 +883,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			rescaleImage(scaleFactor);
 			
-			changeManager.stopRecordingChange();
+			changeManager.stopRecordingUndoChange();
 			
 			update(0);
 			
@@ -895,7 +903,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			rescaleImage(scaleFactor);// update the strokes to fix the pixels
 			
-			changeManager.stopRecordingChange();
+			changeManager.stopRecordingUndoChange();
 			
 			update(0);
 		}
