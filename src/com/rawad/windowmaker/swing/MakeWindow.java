@@ -63,6 +63,7 @@ public class MakeWindow {
 	private JMenuItem mntmUndo;
 	private JMenuItem mntmRedo;
 	private JSlider zoomSlider;
+	private JLabel zoomLabel;
 
 	/**
 	 * Launch the application.
@@ -162,6 +163,16 @@ public class MakeWindow {
 				.setMinorTickSpacing((CustomPanel.MAX_PEN_HEIGHT + CustomPanel.MAX_PEN_WIDTH / 2) / 10);
 		pensizeSlider.setValue(25);
 		pensizeSlider.addChangeListener(sliderChangeListener);
+
+		infoLabel = new JLabel("x, y: 6969, 6969 | width, height: "
+				+ customPanel.getImageWidth() + ", "
+				+ customPanel.getImageHeight());
+		GridBagConstraints gbc_infoLabel = new GridBagConstraints();
+		gbc_infoLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_infoLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_infoLabel.gridx = 0;
+		gbc_infoLabel.gridy = 1;
+		panel.add(infoLabel, gbc_infoLabel);
 		pensizeSlider.setToolTipText("Pen Size");
 		pensizeSlider.setPaintLabels(true);
 		GridBagConstraints gbc_pensizeSlider = new GridBagConstraints();
@@ -171,24 +182,22 @@ public class MakeWindow {
 		gbc_pensizeSlider.gridy = 1;
 		panel.add(pensizeSlider, gbc_pensizeSlider);
 
-		infoLabel = new JLabel("x, y: 6969, 6969 | width, height: "
-				+ customPanel.getImageWidth() + ", "
-				+ customPanel.getImageHeight());
-		GridBagConstraints gbc_infoLabel = new GridBagConstraints();
-		gbc_infoLabel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_infoLabel.insets = new Insets(0, 0, 0, 5);
-		gbc_infoLabel.gridx = 0;
-		gbc_infoLabel.gridy = 2;
-		panel.add(infoLabel, gbc_infoLabel);
-
 		zoomSlider = new JSlider();
 		zoomSlider.setSnapToTicks(true);
+		zoomSlider.setValue(100);
 		zoomSlider.addChangeListener(sliderChangeListener);
+
+		zoomLabel = new JLabel("Zoom: " + zoomSlider.getValue() + "%");
+		GridBagConstraints gbc_zoomLabel = new GridBagConstraints();
+		gbc_zoomLabel.fill = GridBagConstraints.BOTH;
+		gbc_zoomLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_zoomLabel.gridx = 0;
+		gbc_zoomLabel.gridy = 2;
+		panel.add(zoomLabel, gbc_zoomLabel);
 		zoomSlider.setPaintTicks(true);
 		zoomSlider.setMinorTickSpacing(MIN_ZOOM_TICK_SPACING);
 		zoomSlider.setMajorTickSpacing(MIN_ZOOM_TICK_SPACING * 4);
 		zoomSlider.setToolTipText("Zoom: " + zoomSlider.getValue() + "%");
-		zoomSlider.setValue(100);
 		zoomSlider.setMaximum(MIN_ZOOM_TICK_SPACING * 32);
 		zoomSlider.setMinimum(MIN_ZOOM_TICK_SPACING);
 		GridBagConstraints gbc_zoomSlider = new GridBagConstraints();
@@ -308,6 +317,7 @@ public class MakeWindow {
 		mnOptions.add(mntmPenType);
 
 		mntmUndo = new JMenuItem("Undo");
+		mntmUndo.addActionListener(new MenuItemActionListener());
 		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
 				InputEvent.CTRL_MASK));
 		mnOptions.add(mntmUndo);
@@ -418,6 +428,18 @@ public class MakeWindow {
 				customPanel.rescaleImage(value);
 
 				zoomSlider.setToolTipText("Zoom: " + value + "%");
+				zoomLabel.setText("Zoom: " + value + "%");
+			}
+
+		}
+	}
+
+	private class MenuItemActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			JMenuItem source = (JMenuItem) e.getSource();
+
+			if (source == mntmUndo) {
+				customPanel.undo();
 			}
 
 		}

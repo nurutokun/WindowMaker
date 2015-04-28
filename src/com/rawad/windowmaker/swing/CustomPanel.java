@@ -33,6 +33,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	private BufferedImage originalPicture;
 	private BufferedImage displayPicture;
 	
+	private ChangeManager changeManager;
+	
 	private Color penColor;
 	
 	private Shapes penType;
@@ -82,10 +84,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		window = MakeWindow.instance();
 		
+		changeManager = new ChangeManager();
+		
 		penWidth = 20;
 		penHeight = 20;
 		
-		penType = Shapes.RECTANGLE;//rectangle by default
+		penType = Shapes.RECTANGLE;
 		
 		filePath = "res/test.png";
 		
@@ -401,8 +405,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			int outerX = i;
 			int outerY = 0;
 			
-//			System.out.printf("\n", radiusError);
-			
 			while(outerY <= outerX) {
 				
 				setPixel(outerX + x, outerY + y, getPenRGB());
@@ -436,10 +438,18 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	 * @param y Y-coordinate on the scaled image
 	 * @param color Sets the pixel to this color
 	 */
-	private void setPixel(int x, int y, int color) {
+	public void setPixel(int x, int y, int color) {
 		
+		int scaledX = (x * 100)/scaleFactor;
+		int scaledY = (y * 100)/scaleFactor;
+		
+		int prevColor = originalPicture.getRGB(scaledX, scaledY);
+			
 		try {
-			originalPicture.setRGB((x * 100)/scaleFactor, (y * 100)/scaleFactor, getPenRGB());
+			originalPicture.setRGB(scaledX, scaledY, getPenRGB());
+			
+//			System.out.printf("setting pixel: %s, %s from: %s to color: %s\n", scaledX, scaledY,
+//				Integer.toHexString(prevColor), Integer.toHexString(color));
 		} catch(Exception ex) {}
 		
 		double pixelLength = scaleFactor/100d;
@@ -459,6 +469,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				
 				try {
 					displayPicture.setRGB(i, j, color);
+					
+					if(!changeManager.isReverting()) {
+						changeManager.changePixel(i, j, prevColor);
+					}
+					
 				} catch(Exception ex) {
 					return;
 				}
@@ -468,13 +483,17 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
+	public void undo() {
+		changeManager.undoChange(this);
+	}
+	
 	private int abs(int a) {
 		
 		return Math.abs(a);
 		
 	}
 	
-	private void setNewImageDimensions(int width, int height) {
+	public void setNewImageDimensions(int width, int height) {
 		
 		// Copy over current image data and add new empty pixels
 		
@@ -590,6 +609,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public boolean isEdited() {
 		return edited;
+	}
+	
+	public int getScaleFactor() {
+		return scaleFactor;
 	}
 	
 	public void setPenColor(Color c) {
@@ -852,6 +875,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			rescaleImage(scaleFactor);
 			
+			changeManager.stopRecordingChange();
+			
 			update(0);
 			
 			penColor = temp;
@@ -869,6 +894,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			y1 = y2 = e.getY();
 			
 			rescaleImage(scaleFactor);// update the strokes to fix the pixels
+			
+			changeManager.stopRecordingChange();
 			
 			update(0);
 		}
