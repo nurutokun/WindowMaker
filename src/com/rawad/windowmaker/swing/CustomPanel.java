@@ -32,6 +32,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private BufferedImage originalPicture;
 	private BufferedImage displayPicture;
+	private BufferedImage currentSelectedPicture;
 	
 	private ChangeManager changeManager;
 	
@@ -357,6 +358,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			break;
 			
 		case TRIANGLE:
+			break;
+			
+		case SELECT:
+			
 			break;
 			
 		case SELECT:
