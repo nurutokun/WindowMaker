@@ -359,6 +359,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		case TRIANGLE:
 			break;
 			
+		case SELECT:
+			
+			break;
+			
 		default:
 //			g.setColor(Color.RED);
 //			g.drawString("no penType error; this shouldn't happen. It is actaully impressive you made this happen. Bravo to you.", x, y);
@@ -721,7 +725,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		RECTANGLE("Rectangle"),
 		CIRCLE("Circle"),
-		TRIANGLE("Triangle");
+		TRIANGLE("Triangle"),
+		SELECT("Selector");
 		
 		private final String id;
 		
