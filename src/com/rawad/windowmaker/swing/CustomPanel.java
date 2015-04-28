@@ -513,6 +513,14 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
+		if(width <= 0) {
+			width = 1;
+		}
+		
+		if(height <= 0) {
+			height = 1;
+		}
+		
 //		System.out.printf("width,height: %s, %s\n", width, height);
 		
 		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
