@@ -34,6 +34,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	private BufferedImage displayPicture;
 	
 	private ChangeManager changeManager;
+	private SelectionBoxManager selectionManager;
 	
 	private Color penColor;
 	
@@ -85,6 +86,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		window = MakeWindow.instance();
 		
 		changeManager = new ChangeManager();
+		selectionManager = new SelectionBoxManager();
 		
 		penWidth = 20;
 		penHeight = 20;
@@ -139,6 +141,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		cornerBox.setY(viewHeight);
 		
 		cornerBox.render(g);
+		
+		selectionManager.render(g);
 		
 		g.dispose();
 	}
@@ -507,7 +511,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public void setNewImageDimensions(int width, int height) {
 		
-		// Copy over current image data and add new empty pixels
+		//TODO: Copy over current image data and add new empty pixels
 		
 		changeManager.changeDimensions(originalPicture.getWidth()*scaleFactor/100, originalPicture.getHeight()*scaleFactor/100);
 		
