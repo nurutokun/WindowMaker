@@ -31,13 +31,9 @@ public class ChangeManager {
 	public void changePixel(int x, int y, int oldColor) {
 		
 		if(undoing) {
-			
-			// Going from newColor to oldColor therefore save oldColor
 			currentUndoneChange.addEdit(x, y, oldColor);
 			
-		} else if(redoing) {
-			
-			// Going from 
+		} else if(redoing) {// Could merge these last two
 			currentChange.addEdit(x, y, oldColor);
 			
 		} else {
@@ -47,12 +43,19 @@ public class ChangeManager {
 		
 	}
 	
-	public void redoPixel(int x, int y, int color) {
-		currentUndoneChange.addEdit(x, y, color);
-	}
-	
 	public void changeDimensions(int oldWidth, int oldHeight) {
-		currentChange.addEdit(oldWidth, oldHeight);
+		
+		if(undoing) {
+			currentUndoneChange.addEdit(oldWidth, oldHeight);
+			
+		} else if(redoing) {
+			currentChange.addEdit(oldWidth, oldHeight);
+			
+		} else {
+			currentChange.addEdit(oldWidth, oldHeight);
+			
+		}
+		
 	}
 	
 	public void stopRecordingUndoChange() {
@@ -130,8 +133,6 @@ public class ChangeManager {
 			
 			int size = temp.size();
 			
-			System.out.println(size);
-			
 			for(int i = 0; i < size; i++) {
 				Integer[] currentEdit = temp.remove();
 				
@@ -160,7 +161,11 @@ public class ChangeManager {
 				break;
 			
 			case DIMENSION:
-				drawingCanvas.setNewImageDimensions(currentEdit[1], currentEdit[2]);
+				
+				int width = currentEdit[1];
+				int height = currentEdit[2];
+				
+				drawingCanvas.setNewImageDimensions(width, height);
 				break;
 				
 			default:
@@ -172,8 +177,8 @@ public class ChangeManager {
 		}
 		
 		public void addEdit(int x, int y, int color) {
-			Integer[] edit = new Integer[]{ChangeType.PIXEL.getId(), x, y, color};
 			
+			Integer[] edit = new Integer[]{ChangeType.PIXEL.getId(), x, y, color};
 			Integer[] previousEdit = singleEdits.peek();
 			
 //			System.out.printf("x,y: %s, %s color: %s \n", x, y, color);
@@ -206,7 +211,30 @@ public class ChangeManager {
 		}
 		
 		public void addEdit(int width, int height) {
-			singleEdits.add(new Integer[]{ChangeType.DIMENSION.getId(), width, height});
+			
+			Integer[] edit = new Integer[]{ChangeType.DIMENSION.getId(), width, height};
+			Integer[] previousEdit = singleEdits.peek();
+			
+			boolean addEdit = true;
+			
+			int prevWidth = 0;
+			int prevHeight = 0;
+			
+			if(previousEdit != null ) {
+				
+				prevWidth = previousEdit[1];
+				prevHeight = previousEdit[2];
+				
+				if(prevWidth == width && prevHeight == height) {
+					addEdit = false;
+				}
+				
+			}
+			
+			if(addEdit) {
+				singleEdits.push(edit);
+			}
+			
 		}
 		
 	}

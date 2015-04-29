@@ -32,7 +32,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private BufferedImage originalPicture;
 	private BufferedImage displayPicture;
-	private BufferedImage currentSelectedPicture;
 	
 	private ChangeManager changeManager;
 	
@@ -510,6 +509,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		// Copy over current image data and add new empty pixels
 		
+		changeManager.changeDimensions(originalPicture.getWidth()*scaleFactor/100, originalPicture.getHeight()*scaleFactor/100);
+		
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
@@ -594,7 +595,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	private BufferedImage getScaledImage(BufferedImage original, double scaleFactor) {
+	public static BufferedImage getScaledImage(BufferedImage original, double scaleFactor) {
 		
 		int w1 = original.getWidth();
 		int w2 = (int) (w1 * (scaleFactor/100d));
@@ -773,25 +774,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	private static enum Cursors {
-		
-		DEFAULT(new Cursor(Cursor.DEFAULT_CURSOR)),
-		HORIZONTAL(new Cursor(Cursor.E_RESIZE_CURSOR)),
-		VERTICAL(new Cursor(Cursor.S_RESIZE_CURSOR)),
-		DIAGONAL(new Cursor(Cursor.SE_RESIZE_CURSOR));
-		
-		private final Cursor type;
-		
-		private Cursors(Cursor type) {
-			this.type = type;
-		}
-		
-		public Cursor getCursor() {
-			return type;
-		}
-		
-	}
-	
 	@Override
 	public void mouseClicked(MouseEvent e) {}
 	
@@ -951,65 +933,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(e.isControlDown()) {
 			window.changeZoom(-e.getUnitsToScroll());
-		}
-		
-	}
-	
-	private class ResizerBox {
-		
-		private int x;
-		private int y;
-		
-		private int width;
-		private int height;
-		
-		private boolean dragging;
-		
-		public ResizerBox(int x, int y, int width, int height) {
-			this.x = x;
-			this.y = y;
-			
-			this.width = width;
-			this.height = height;
-			
-			dragging = false;
-		}
-		
-		public void render(Graphics g) {
-			
-			g.setColor(Color.GRAY);
-			g.drawRect(x, y, width, height);
-			
-			g.setColor(Color.WHITE);
-			g.fillRect(x+1, y+1 , width-1, height-1);
-			
-		}
-		
-		public boolean intersects(int x, int y) {
-			
-			if(	(x > this.x && x < (this.x + width)) &&
-				(y > this.y && y < (this.y + height))) {
-				return true;
-			}
-			
-			return false;
-			
-		}
-
-		public void setX(int x) {
-			this.x = x;
-		}
-
-		public void setY(int y) {
-			this.y = y;
-		}
-
-		public boolean isDragging() {
-			return dragging;
-		}
-
-		public void setDragging(boolean dragging) {
-			this.dragging = dragging;
 		}
 		
 	}
