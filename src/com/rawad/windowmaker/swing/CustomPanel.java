@@ -56,9 +56,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	private int viewWidth = 400;
 	private int viewHeight = 300;
 	
-	private ResizerBox rightBox;
-	private ResizerBox bottomBox;
-	private ResizerBox cornerBox;
+	private CenterRightBox rightBox;
+	private BottomCenterBox bottomBox;
+	private BottomRightBox cornerBox;
 	
 	private int boxWidth = 6;
 	private int boxHeight = 6;
@@ -103,9 +103,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		potentialWidth = viewWidth;
 		potentialHeight = viewHeight;
 		
-		rightBox = new ResizerBox(viewWidth, viewHeight/2 - (boxHeight/2), boxWidth, boxHeight);
-		bottomBox = new ResizerBox(viewWidth/2 - (boxWidth/2), viewHeight, boxWidth, boxHeight);
-		cornerBox = new ResizerBox(viewWidth, viewHeight, boxWidth, boxHeight);
+		rightBox = new CenterRightBox(viewWidth, viewHeight);
+		bottomBox = new BottomCenterBox(viewWidth, viewHeight);
+		cornerBox = new BottomRightBox(viewWidth, viewHeight);
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -127,20 +127,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			g.drawRect(0, 0, potentialWidth, potentialHeight);
 		}
 		
-		rightBox.setX(viewWidth);
-		rightBox.setY(viewHeight/2 - (boxHeight/2));
-		
-		rightBox.render(g);
-		
-		bottomBox.setX(viewWidth/2 - (boxWidth/2));
-		bottomBox.setY(viewHeight);
-		
-		bottomBox.render(g);
-		
-		cornerBox.setX(viewWidth);
-		cornerBox.setY(viewHeight);
-		
-		cornerBox.render(g);
+		rightBox.render(g, viewWidth, viewHeight);
+		bottomBox.render(g, viewWidth, viewHeight);
+		cornerBox.render(g, viewWidth, viewHeight);
 		
 		selectionManager.render(g);
 		
@@ -451,6 +440,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		int scaledX = (x * 100)/scaleFactor;
 		int scaledY = (y * 100)/scaleFactor;
+		
+		// TODO: Fix array index out of bounds exception here.
+		// TODO: Don't forget to save the pixels when down sizing
 		
 		int prevColor = originalPicture.getRGB(scaledX, scaledY);
 		

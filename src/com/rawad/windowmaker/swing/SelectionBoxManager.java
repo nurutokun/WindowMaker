@@ -34,7 +34,14 @@ public class SelectionBoxManager {
 	
 	private static class SelectionBox {
 		
-		private ResizerBox[] boxes;
+		private TopLeftBox tlBox;
+		private TopCenterBox tcBox;
+		private TopRightBox trBox;
+		private CenterLeftBox clBox;
+		private CenterRightBox crBox;
+		private BottomLeftBox blBox;
+		private BottomCenterBox bcBox;
+		private BottomRightBox brBox;
 		
 		private int x;
 		private int y;
@@ -47,11 +54,14 @@ public class SelectionBoxManager {
 		
 		public SelectionBox(int x, int y, int width, int height) {
 			
-			boxes = new ResizerBox[8];
-			
-			for(int i = 0; i < boxes.length; i++) {
-				boxes[i] = new ResizerBox(0, 0, boxWidth, boxHeight);
-			}
+			tlBox = new TopLeftBox(width, height);
+			tcBox = new TopCenterBox(width, height);
+			trBox = new TopRightBox(width, height);
+			clBox = new CenterLeftBox(width, height);
+			crBox = new CenterRightBox(width, height);
+			blBox = new BottomLeftBox(width, height);
+			bcBox = new BottomCenterBox(width, height);
+			brBox = new BottomRightBox(width, height);
 			
 			this.x = x;
 			this.y = y;
@@ -65,9 +75,14 @@ public class SelectionBoxManager {
 			
 			updateResizeBoxPositions();
 			
-			for(ResizerBox b: boxes) {
-				b.render(g);
-			}
+			tlBox.render(g, width, height);
+			tcBox.render(g, width, height);
+			trBox.render(g, width, height);
+			clBox.render(g, width, height);
+			crBox.render(g, width, height);
+			blBox.render(g, width, height);
+			bcBox.render(g, width, height);
+			brBox.render(g, width, height);
 			
 		}
 		
@@ -77,29 +92,29 @@ public class SelectionBoxManager {
 			// 3		4
 			// 5	6	7
 			
-			boxes[0].setX(x-boxWidth);
-			boxes[0].setY(y-boxHeight);
+			tlBox.setContainerX(x);
+			tlBox.setContainerY(y);
 			
-			boxes[1].setX(x+(width/2)-(boxWidth/2));
-			boxes[1].setY(y-boxHeight);
+			tcBox.setContainerX(x);
+			tcBox.setContainerY(y);
 			
-			boxes[2].setX(x+width+boxWidth);
-			boxes[2].setY(y-boxHeight);
+			trBox.setContainerX(x);
+			trBox.setContainerY(y);
 			
-			boxes[3].setX(x-boxWidth);
-			boxes[3].setY(y+(height/2)-(boxHeight/2));
+			clBox.setContainerX(x);
+			clBox.setContainerY(y);
 			
-			boxes[4].setX(x+width+boxWidth);
-			boxes[4].setY(y+(height/2)-(boxHeight/2));
+			crBox.setContainerX(x);
+			crBox.setContainerY(y);
 			
-			boxes[5].setX(x-boxWidth);
-			boxes[5].setY(y+height);
+			blBox.setContainerX(x);
+			blBox.setContainerY(y);
 			
-			boxes[6].setX(x+(width/2)-(boxWidth/2));
-			boxes[6].setY(y+height);
+			bcBox.setContainerX(x);
+			bcBox.setContainerY(y);
 			
-			boxes[7].setX(x+width+boxHeight);
-			boxes[7].setY(y+height);
+			brBox.setContainerX(x);
+			brBox.setContainerY(y);
 			
 		}
 		
