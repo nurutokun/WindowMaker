@@ -1,9 +1,9 @@
-package com.rawad.windowmaker.swing;
+package com.rawad.windowmaker.swing.resizerboxes;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class ResizerBox {
+public abstract class ResizerBox {
 	
 	public static final int BOX_WIDTH = 6;
 	public static final int BOX_HEIGHT = 6;
@@ -50,14 +50,12 @@ public class ResizerBox {
 		
 	}
 	
-	public void updatePosition() {
-		
-	}
+	public abstract void updatePosition();
 	
 	public boolean intersects(int x, int y) {
 		
-		if(	(x > this.x && x < (this.x + width)) &&
-			(y > this.y && y < (this.y + height))) {
+		if(	(x > this.x + containerX && x < (this.x + containerX + width)) &&
+			(y > this.y + containerY && y < (this.y + containerY + height))) {
 			return true;
 		}
 		

@@ -1,4 +1,4 @@
-package com.rawad.windowmaker.swing;
+package com.rawad.windowmaker.swing.resizerboxes;
 
 public class TopLeftBox extends ResizerBox {
 
@@ -9,8 +9,8 @@ public class TopLeftBox extends ResizerBox {
 	
 	public void updatePosition() {
 		
-		setX(-BOX_WIDTH);
-		setY(-BOX_HEIGHT);
+		setX(-BOX_WIDTH-1);
+		setY(-BOX_HEIGHT-1);
 		
 	}
 	

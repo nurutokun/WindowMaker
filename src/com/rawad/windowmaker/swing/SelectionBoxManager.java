@@ -1,21 +1,29 @@
 package com.rawad.windowmaker.swing;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 public class SelectionBoxManager {
 	
-	private BufferedImage currentPicture;
-	
 	// Could be an ArrayList
 	private SelectionBox selection;
 	
+	private int x1;
+	private int y1;
+	
+	private int x2;
+	private int y2;
+	
+	private int potentialWidth;
+	private int potentialHeight;
+	
+	private boolean creatingBox;
 	private boolean showBox;
 	
 	public SelectionBoxManager() {
 		
-		selection = new SelectionBox(0, 0, 0, 0);
-		
+		creatingBox = false;
 		showBox = false;
 		
 	}
@@ -30,136 +38,125 @@ public class SelectionBoxManager {
 			selection.paint(g);
 		}
 		
+		if(creatingBox) {
+			g.setColor(Color.GRAY);
+			g.drawRect(x1, y1, potentialWidth, potentialHeight);
+		}
+		
 	}
 	
-	private static class SelectionBox {
+	public void createSelectionBox(BufferedImage picture, int x, int y, int scaleFactor) {
 		
-		private TopLeftBox tlBox;
-		private TopCenterBox tcBox;
-		private TopRightBox trBox;
-		private CenterLeftBox clBox;
-		private CenterRightBox crBox;
-		private BottomLeftBox blBox;
-		private BottomCenterBox bcBox;
-		private BottomRightBox brBox;
+		selection = new SelectionBox(picture, x, y, scaleFactor);
 		
-		private int x;
-		private int y;
+		showBox = true;
 		
-		private int width;
-		private int height;
+	}
+	
+	public void setFirstPosition(int x, int y) {
 		
-		private int boxWidth = 6;
-		private int boxHeight = 6;
-		
-		public SelectionBox(int x, int y, int width, int height) {
+		if(!creatingBox) {
+			this.x1 = x;
+			this.y1 = y;
 			
-			tlBox = new TopLeftBox(width, height);
-			tcBox = new TopCenterBox(width, height);
-			trBox = new TopRightBox(width, height);
-			clBox = new CenterLeftBox(width, height);
-			crBox = new CenterRightBox(width, height);
-			blBox = new BottomLeftBox(width, height);
-			bcBox = new BottomCenterBox(width, height);
-			brBox = new BottomRightBox(width, height);
+			creatingBox = true;
+		} else {
+			potentialWidth = Math.abs(x - x1);
+			potentialHeight = Math.abs(y - y1);
 			
-			this.x = x;
-			this.y = y;
-			
-			this.width = width;
-			this.height = height;
-			
-		}
-		
-		public void paint(Graphics g) {
-			
-			updateResizeBoxPositions();
-			
-			tlBox.render(g, width, height);
-			tcBox.render(g, width, height);
-			trBox.render(g, width, height);
-			clBox.render(g, width, height);
-			crBox.render(g, width, height);
-			blBox.render(g, width, height);
-			bcBox.render(g, width, height);
-			brBox.render(g, width, height);
-			
-		}
-		
-		private void updateResizeBoxPositions() {
-			
-			// 0	1	2
-			// 3		4
-			// 5	6	7
-			
-			tlBox.setContainerX(x);
-			tlBox.setContainerY(y);
-			
-			tcBox.setContainerX(x);
-			tcBox.setContainerY(y);
-			
-			trBox.setContainerX(x);
-			trBox.setContainerY(y);
-			
-			clBox.setContainerX(x);
-			clBox.setContainerY(y);
-			
-			crBox.setContainerX(x);
-			crBox.setContainerY(y);
-			
-			blBox.setContainerX(x);
-			blBox.setContainerY(y);
-			
-			bcBox.setContainerX(x);
-			bcBox.setContainerY(y);
-			
-			brBox.setContainerX(x);
-			brBox.setContainerY(y);
-			
-		}
-		
-		public int getX() {
-			return x;
-		}
-		
-		public void setX(int x) {
-			this.x = x;
-		}
-		
-		public void setY(int y) {
-			this.y = y;
-		}
-		
-		public int getY() {
-			return y;
-		}
-		
-		public int getWidth() {
-			return width;
-		}
-		
-		public void setWidth(int width) {
-			this.width = width;
-		}
-
-		public int getHeight() {
-			return height;
-		}
-		
-		public void setHeight(int height) {
-			this.height = height;
-		}
-		
-		public boolean intersects(int x, int y) {
-			
-			if(x > getX() && y > getY() && x < getX() + getWidth() && y < getY() + getHeight()) {
-				return true;
+			if(potentialWidth == 0) {
+				potentialWidth = 1;
 			}
 			
-			return false;
+			if(potentialHeight == 0) {
+				potentialHeight = 1;
+			}
 			
 		}
 		
+	}
+	
+	public void setLastPosition(CustomPanel drawingCanvas, int x, int y) {
+		
+		if(creatingBox) {
+			
+			if(x1 > x) {
+				x2 = x1;
+				x1 = x;
+			} else {
+				x2 = x;
+			}
+			
+			if(y1 > y) {
+				y2 = y1;
+				y1 = y;
+			} else {
+				y2 = y;
+			}
+			
+			creatingBox = false;
+			
+		}
+		
+		int width = Math.abs(x2-x1);
+		int height = Math.abs(y2-y1);
+		
+		width = width == 0? 1:width;
+		height = height == 0? 1:height;
+		
+		createSelectionBox(drawingCanvas.getSubImage(x1, y1, width, height), x1, y1, drawingCanvas.getScaleFactor());
+		
+		for(int i = x1; i < x1+width; i++) {
+			for(int j = y1; j < y1+height; j++) {
+				
+				drawingCanvas.setPixel(i, j, CustomPanel.INIT_PIC_BACKGROUND.getRGB());
+				
+			}
+		}
+		
+	}
+	
+	public void copySelectionOntoCanvas(CustomPanel drawingCanvas) {
+		
+		SelectionBox box = getLastBox();
+		BufferedImage temp = box.getImage();
+		
+		for(int i = box.getX(); i < box.getX() + box.getHeight(); i++) {
+			for(int j = box.getY(); j < box.getY() + box.getHeight(); j++) {
+				
+				try {
+					drawingCanvas.setPixel(i, j, temp.getRGB(i - box.getX(), j - box.getY()));
+				} catch(ArrayIndexOutOfBoundsException ex) {
+					System.out.println((i-box.getX()) + ", " + (j-box.getY()) + " is out of bounds");
+				}
+				
+			}
+		}
+		
+		// TODO
+		// Be sure to change this if/when adding more boxes
+		selection = null;
+		showBox = false;
+		
+	}
+	
+	public void moveBox(int x, int y) {
+		
+		getLastBox().move(x, y);
+			
+	}
+	
+	public void stopDragging() {
+		SelectionBox box = getLastBox();
+		
+		if(box != null) {
+			getLastBox().setDragging(false);
+		}
+		
+	}
+	
+	public boolean isCreating() {
+		return creatingBox;
 	}
 	
 }
