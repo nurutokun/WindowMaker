@@ -307,17 +307,17 @@ public class MakeWindow {
 				Object returnVal = JOptionPane.showInputDialog(frmFrameTitle,
 						"Select Pen Type", "Pen Type",
 						JOptionPane.INFORMATION_MESSAGE, null, options,
-						customPanel.getPenType().getId());
+						customPanel.getPenShape().getId());
 
-				customPanel.setPenType(CustomPanel.Shapes
+				customPanel.setPenShape(CustomPanel.Shapes
 						.getById((String) returnVal));
 
 			}
 		});
 		mnOptions.add(mntmPenType);
-		
+
 		MenuItemActionListener mntmListener = new MenuItemActionListener();
-		
+
 		mntmUndo = new JMenuItem("Undo");
 		mntmUndo.addActionListener(mntmListener);
 		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
@@ -371,6 +371,22 @@ public class MakeWindow {
 		scrollPane_1.invalidate();
 		scrollPane_1.validate();
 		scrollPane_1.revalidate();
+	}
+
+	public int getHorizontalScroll() {
+		return scrollPane_1.getHorizontalScrollBar().getValue();
+	}
+
+	public int getVerticalScroll() {
+		return scrollPane_1.getVerticalScrollBar().getValue();
+	}
+
+	public int getViewPortWidth() {
+		return scrollPane_1.getViewport().getWidth();
+	}
+
+	public int getViewPortHeight() {
+		return scrollPane_1.getViewport().getHeight();
 	}
 
 	public void setInfo(int x, int y, int width, int height) {
@@ -443,7 +459,7 @@ public class MakeWindow {
 
 			if (source == mntmUndo) {
 				customPanel.undo();
-			} else if(source == mntmRedo) {
+			} else if (source == mntmRedo) {
 				customPanel.redo();
 			}
 

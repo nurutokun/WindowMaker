@@ -1,4 +1,4 @@
-package com.rawad.windowmaker.swing;
+package com.rawad.windowmaker.swing.resizerboxes;
 
 import java.awt.Color;
 import java.awt.Graphics;

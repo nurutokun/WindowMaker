@@ -16,6 +16,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import com.rawad.windowmaker.swing.resizerboxes.BottomCenterBox;
+import com.rawad.windowmaker.swing.resizerboxes.BottomRightBox;
+import com.rawad.windowmaker.swing.resizerboxes.CenterRightBox;
+
 public class CustomPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	public static final int MAX_PEN_WIDTH = 100;
@@ -38,7 +42,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private Color penColor;
 	
-	private Shapes penType;
+	private Shapes penShape;
 	
 	private Cursor cursor;
 	
@@ -68,7 +72,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private int scaleFactor;
 	
-	private boolean dragging;
+	private boolean drawing;
 	private boolean resizing;
 	private boolean edited;
 	
@@ -79,7 +83,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		scaleFactor = 100;
 		
-		dragging = false;
+		drawing = false;
 		resizing = false;
 		edited = false;
 		
@@ -91,11 +95,13 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penType = Shapes.RECTANGLE;
+		penShape = Shapes.RECTANGLE;
 		
 		filePath = "res/test.png";
 		
 		initPicture();
+		
+//		mainView = new SelectionBox(originalPicture, 0, 0);
 		
 		viewWidth = displayPicture.getWidth();
 		viewHeight = displayPicture.getHeight();
@@ -117,6 +123,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		super.paintComponent(g);
 		
 		if(displayPicture != null) {
+			drawDisplayPicture(g);
 			g.drawImage(displayPicture, 0, 0, null);
 		} else {
 			g.drawString("Put A Pic In Me", getWidth()/2 - (50), getHeight()/2);
@@ -134,6 +141,30 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		selectionManager.render(g);
 		
 		g.dispose();
+	}
+	
+	/**
+	 * Draws only the visible part of the image for optimization purposes
+	 * 
+	 * @param g {@code Graphics Object} used to draw directly onto the {@code JPanel}
+	 */
+	private void drawDisplayPicture(Graphics g) {
+		
+		int x = window.getHorizontalScroll();
+		int y = window.getVerticalScroll();
+		
+		int maxWidth = window.getViewPortWidth() > viewWidth? viewWidth:window.getViewPortWidth();
+		int maxHeight = window.getViewPortHeight() > viewHeight? viewHeight:window.getViewPortHeight();
+		
+		for(int i = y; i < maxHeight; i++) {
+			for(int j = x; j < maxWidth; j++) {
+				
+				g.setColor(new Color(displayPicture.getRGB(j, i)));
+				g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+				
+			}
+		}
+		
 	}
 	
 	public void saveImage() {
@@ -193,11 +224,17 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //		System.out.println("potential(width, height): " + potentialWidth + ", " + potentialHeight +
 //				" picture(width, height): " + displayPicture.getWidth() + ", " + displayPicture.getHeight());
 		
-		if(dragging) {//could check if we're in image's range but Graphics object don't care 'bout where it draws its pixels
+		if(drawing) {
 			
 			renderPenStrokes();
 			
 			edited = true;
+		}
+		
+		if(penShape == Shapes.SELECT) {
+			
+//			selectionManager.c
+			
 		}
 		
 		if(rightBox.isDragging() || bottomBox.isDragging() || cornerBox.isDragging()) {
@@ -339,7 +376,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		x -= (scaledStrokeWidth/2);
 		y -= (scaledStrokeHeight/2);
 		
-		switch(penType) {
+		switch(penShape) {
 		
 		case RECTANGLE:
 			drawRectangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
@@ -350,10 +387,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			break;
 			
 		case TRIANGLE:
-			break;
-			
-		case SELECT:
-			
+			drawTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
 			break;
 			
 		default:
@@ -428,6 +462,30 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
+	private void drawTriangle(int x, int y, int strokeWidth, int strokeHeight) {
+		
+		//	0,0				strokeWidth,0
+		//	0,strokeHeight	strokeWidth,strokeHeight
+		
+		double invslope1 = (-strokeWidth/2d) / (strokeHeight);
+		double invslope2 = (strokeWidth/2d) / strokeHeight;
+		
+		double curX1 = (strokeWidth)/2d;
+		double curX2 = (strokeWidth)/2d;
+		
+		for(int scanLineY = y; scanLineY <= y+strokeHeight; scanLineY ++) {
+			
+			for(double i = curX1; i < curX2; i++) {
+				setPixel((int) i+x, scanLineY, getPenRGB());
+			}
+			
+			curX1 += invslope1;
+			curX2 += invslope2;
+			
+		}
+		
+	}
+	
 	/**
 	 * Snaps pixel to grid of the resized version and draws on original picture. {@code color} variable can be used to
 	 * soften edges and stuff
@@ -441,10 +499,13 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int scaledX = (x * 100)/scaleFactor;
 		int scaledY = (y * 100)/scaleFactor;
 		
-		// TODO: Fix array index out of bounds exception here.
-		// TODO: Don't forget to save the pixels when down sizing
+		int prevColor;
 		
-		int prevColor = originalPicture.getRGB(scaledX, scaledY);
+		try {
+			prevColor = originalPicture.getRGB(scaledX, scaledY);
+		} catch(ArrayIndexOutOfBoundsException ex) {
+			return;
+		}
 		
 		if(prevColor != color) {
 			try {
@@ -505,8 +566,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		//TODO: Copy over current image data and add new empty pixels
 		
-		changeManager.changeDimensions(originalPicture.getWidth()*scaleFactor/100, originalPicture.getHeight()*scaleFactor/100);
-		
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
@@ -518,7 +577,32 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			height = 1;
 		}
 		
-//		System.out.printf("width,height: %s, %s\n", width, height);
+		if(width < originalPicture.getWidth()) {
+			
+			System.out.println("width less than actual");
+			
+			for(int i = width; i < originalPicture.getWidth(); i++) {
+				for(int j = 0; j < originalPicture.getHeight(); j++) {
+					
+					changeManager.changePixel(i*scaleFactor/100, j*scaleFactor/100, originalPicture.getRGB(i, j));
+				}
+			}
+			
+		}
+		
+		if(height < originalPicture.getHeight()) {
+			
+			for(int i = height; i < originalPicture.getHeight(); i++) {
+				for(int j = 0; j < originalPicture.getWidth(); j++) {
+					
+					changeManager.changePixel(j*scaleFactor/100, i*scaleFactor/100, originalPicture.getRGB(j, i));
+					
+				}
+			}
+			
+		}
+		
+		changeManager.changeDimensions(originalPicture.getWidth()*scaleFactor/100, originalPicture.getHeight()*scaleFactor/100);
 		
 		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
@@ -650,15 +734,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		return penColor.getRGB();
 	}
 	
-	public void setPenType(Shapes penType) {
+	public void setPenShape(Shapes penShape) {
 		
-		if(penType != null) {
-			this.penType = penType;
+		if(penShape != null) {
+			this.penShape = penShape;
 		}
 	}
 	
-	public Shapes getPenType() {
-		return penType;
+	public Shapes getPenShape() {
+		return penShape;
 	}
 	
 	public void setPenSize(int size) {
@@ -732,7 +816,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		RECTANGLE("Rectangle"),
 		CIRCLE("Circle"),
 		TRIANGLE("Triangle"),
-		SELECT("Selector");
+		SELECT("Selection Box");
 		
 		private final String id;
 		
@@ -793,7 +877,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				
 			} else {
 				
-				dragging = true;
+				drawing = true;
 				
 				x2 = x1 = x;
 				y2 = y1 = y;
@@ -813,7 +897,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			if(!boxesDragging(x, y)) { // boxesDragging handles all the dragging of the boxes
 				
-				dragging = true;
+				drawing = true;
 				
 				x2 = x1 = x;
 				y2 = y1 = y;
@@ -862,7 +946,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(e.isMetaDown()) {
 			
-			dragging = false;
+			drawing = false;
 			
 			stopDragging();
 			
@@ -884,7 +968,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		} else if(e.isAltDown()) {
 			
 		} else {
-			dragging = false;
+			drawing = false;
 			
 			potentiallyResize();
 			
