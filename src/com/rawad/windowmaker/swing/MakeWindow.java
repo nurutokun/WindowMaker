@@ -302,14 +302,14 @@ public class MakeWindow {
 		JMenuItem mntmPenType = new JMenuItem("Pen Type");
 		mntmPenType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String[] options = CustomPanel.Shapes.getIds();
+				String[] options = CustomPanel.Shape.getIds();
 
 				Object returnVal = JOptionPane.showInputDialog(frmFrameTitle,
 						"Select Pen Type", "Pen Type",
 						JOptionPane.INFORMATION_MESSAGE, null, options,
 						customPanel.getPenShape().getId());
 
-				customPanel.setPenShape(CustomPanel.Shapes
+				customPanel.setPenShape(CustomPanel.Shape
 						.getById((String) returnVal));
 
 			}

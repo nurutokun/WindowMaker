@@ -42,7 +42,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private Color penColor;
 	
-	private Shapes penShape;
+	private Shape penShape;
 	
 	private Cursor cursor;
 	
@@ -72,7 +72,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private int scaleFactor;
 	
-	private boolean drawing;
+	private boolean dragging;
 	private boolean resizing;
 	private boolean edited;
 	
@@ -83,7 +83,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		scaleFactor = 100;
 		
-		drawing = false;
+		dragging = false;
 		resizing = false;
 		edited = false;
 		
@@ -95,7 +95,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penShape = Shapes.RECTANGLE;
+		penShape = Shape.RECTANGLE;
 		
 		filePath = "res/test.png";
 		
@@ -224,14 +224,14 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //		System.out.println("potential(width, height): " + potentialWidth + ", " + potentialHeight +
 //				" picture(width, height): " + displayPicture.getWidth() + ", " + displayPicture.getHeight());
 		
-		if(drawing) {
+		if(dragging) {
 			
-			renderPenStrokes();
+			handleDragging();
 			
 			edited = true;
 		}
 		
-		if(penShape == Shapes.SELECT) {
+		if(penShape == Shape.SELECT) {
 			
 //			selectionManager.c
 			
@@ -282,6 +282,46 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		window.setInfo(x2*100/scaleFactor, y2*100/scaleFactor, potentialWidth*100/scaleFactor, potentialHeight*100/scaleFactor);
 		window.repaint();
+	}
+	
+	private void handleDragging() {
+		
+		PenType type = penShape.getPenType();
+		
+		switch(type) {
+		
+		case DRAW:
+			renderPenStrokes();
+			break;
+		
+		case TWO_COORDINATES:
+			handleTwoCoordinateStroke();
+			break;
+			
+		default:
+			break;
+		
+		}
+		
+	}
+	
+	private void handleTwoCoordinateStroke() {
+		
+		switch(penShape) {
+		
+		case SELECT:
+			selectionManager.updateBoxPosition(x1, y1);
+			break;
+		
+		case LINE:
+			
+			break;
+		
+		default:
+			break;
+		
+		}
+		
 	}
 	
 	private void renderPenStrokes() {
@@ -734,14 +774,14 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		return penColor.getRGB();
 	}
 	
-	public void setPenShape(Shapes penShape) {
+	public void setPenShape(Shape penShape) {
 		
 		if(penShape != null) {
 			this.penShape = penShape;
 		}
 	}
 	
-	public Shapes getPenShape() {
+	public Shape getPenShape() {
 		return penShape;
 	}
 	
@@ -811,26 +851,40 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	public static enum Shapes {
+	public static enum PenType {
 		
-		RECTANGLE("Rectangle"),
-		CIRCLE("Circle"),
-		TRIANGLE("Triangle"),
-		SELECT("Selection Box");
+		DRAW,
+		TWO_COORDINATES;
+		
+	}
+	
+	public static enum Shape {
+		
+		RECTANGLE("Rectangle", PenType.DRAW),
+		CIRCLE("Circle", PenType.DRAW),
+		TRIANGLE("Triangle", PenType.DRAW),
+		SELECT("Selection Box", PenType.TWO_COORDINATES),
+		LINE("Line", PenType.TWO_COORDINATES);
 		
 		private final String id;
+		private final PenType type;
 		
-		private Shapes(String id) {
+		private Shape(String id, PenType type) {
 			this.id = id;
+			this.type = type;
 		}
 		
 		public String getId() {
 			return id;
 		}
 		
-		public static Shapes getById(String id) {
+		public PenType getPenType() {
+			return type;
+		}
+		
+		public static Shape getById(String id) {
 			
-			for(Shapes shape: Shapes.values()) {
+			for(Shape shape: Shape.values()) {
 				if(shape.getId().equals(id)) {
 					return shape;
 				}
@@ -841,7 +895,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		}
 		
 		public static String[] getIds() {
-			Shapes[] shapes = Shapes.values();
+			Shape[] shapes = Shape.values();
 			
 			String[] re = new String[shapes.length];
 			
@@ -877,7 +931,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				
 			} else {
 				
-				drawing = true;
+				dragging = true;
 				
 				x2 = x1 = x;
 				y2 = y1 = y;
@@ -897,7 +951,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			if(!boxesDragging(x, y)) { // boxesDragging handles all the dragging of the boxes
 				
-				drawing = true;
+				dragging = true;
 				
 				x2 = x1 = x;
 				y2 = y1 = y;
@@ -946,7 +1000,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(e.isMetaDown()) {
 			
-			drawing = false;
+			dragging = false;
 			
 			stopDragging();
 			
@@ -968,7 +1022,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		} else if(e.isAltDown()) {
 			
 		} else {
-			drawing = false;
+			dragging = false;
 			
 			potentiallyResize();
 			

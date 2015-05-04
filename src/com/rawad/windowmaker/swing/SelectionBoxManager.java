@@ -12,6 +12,8 @@ public class SelectionBoxManager {
 	
 	public SelectionBoxManager() {
 		
+		selection = new SelectionBox(0, 0);
+		
 		showBox = false;
 		
 	}
@@ -24,6 +26,16 @@ public class SelectionBoxManager {
 		
 		if(showBox) {
 			selection.paint(g);
+		}
+		
+	}
+	
+	public void updateBoxPosition(int x, int y) {
+		
+		if(selection.isCreating()) {
+			
+		} else {
+			
 		}
 		
 	}

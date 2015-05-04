@@ -42,6 +42,7 @@ public class SelectionBox {
 		private int scaleFactor;
 		
 		private boolean resizing;
+		private boolean creating;
 		
 		public SelectionBox(BufferedImage originalPicture, int x, int y) {
 			
@@ -67,6 +68,13 @@ public class SelectionBox {
 			
 			cursor = Cursors.DEFAULT.getCursor();
 			
+			resizing = false;
+			creating = false;
+			
+		}
+		
+		public SelectionBox(int x, int y) {
+			this(null, x, y);
 		}
 		
 		public void paint(Graphics g) {
@@ -84,6 +92,10 @@ public class SelectionBox {
 			
 			if(displayPicture != null) {
 				g.drawImage(displayPicture, x, y, null);
+				
+			} else if(creating) {
+				g.setColor(Color.WHITE);
+				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
 			}
 			
 			if(resizing) {
@@ -172,6 +184,19 @@ public class SelectionBox {
 		
 		public void setHeight(int height) {
 			this.height = height;
+		}
+		
+		public void setImage(BufferedImage picture) {
+			this.originalPicture = picture;
+			this.displayPicture = picture;
+		}
+		
+		public void setCreating(boolean creating) {
+			this.creating = creating;
+		}
+		
+		public boolean isCreating() {
+			return creating;
 		}
 		
 		public boolean intersects(int x, int y) {
