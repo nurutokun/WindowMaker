@@ -42,6 +42,7 @@ public class SelectionBox {
 		private int scaleFactor;
 		
 		private boolean resizing;
+		private boolean creating;
 		
 		public SelectionBox(BufferedImage originalPicture, int x, int y) {
 			
@@ -67,6 +68,13 @@ public class SelectionBox {
 			
 			cursor = Cursors.DEFAULT.getCursor();
 			
+			resizing = false;
+			creating = false;
+			
+		}
+		
+		public SelectionBox(int x, int y) {
+			this(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), x, y);
 		}
 		
 		public void paint(Graphics g) {
@@ -84,6 +92,15 @@ public class SelectionBox {
 			
 			if(displayPicture != null) {
 				g.drawImage(displayPicture, x, y, null);
+				
+			} else {
+				g.setColor(Color.WHITE);
+				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
+			}
+			
+			if(creating) {
+				g.setColor(Color.GRAY);
+				g.drawRect(x, y, potentialWidth, potentialHeight);
 			}
 			
 			if(resizing) {
@@ -126,15 +143,37 @@ public class SelectionBox {
 			
 		}
 		
-		public void handleMouseMove(int x1, int y1, int x2, int y2) {
+		public void updateMousePosition(int x, int y) {
 			
-		}
-		
-		public void handleMousePress(int x, int y) {
+			int dx = x - this.x;
+			int dy = y - this.y ;
 			
-		}
-		
-		public void handleMouseRelease(int x, int y) {
+			System.out.printf("original: %s, %s. new: %s, %s. deltas: %s, %s\n", this.x, this.y, x, y, dx, dy);
+			
+			if(dx < 0) {
+				
+				dx = -dx;
+				
+			}
+			
+			if(dy < 0) {
+				
+				dy = -dy;
+				
+			}
+			
+			dx = dx == 0? 1:dx;
+			dy = dy == 0? 1:dy;
+			
+			potentialWidth = dx;
+			potentialHeight = dy;
+			
+			if(!creating) {
+				this.x = x;
+				this.y = y;
+			}
+			
+			setCreating(true);
 			
 		}
 		
@@ -172,6 +211,38 @@ public class SelectionBox {
 		
 		public void setHeight(int height) {
 			this.height = height;
+		}
+		
+		public int getPotentialWidth() {
+			return potentialWidth;
+		}
+		
+		public void setPotentialWidth(int potentialWidth) {
+			this.potentialWidth = potentialWidth;
+		}
+		
+		public int getPotentialHeight() {
+			return potentialHeight;
+		}
+		
+		public void setPotentialHeight(int potentialHeight) {
+			this.potentialHeight = potentialHeight;
+		}
+		
+		public void setImage(BufferedImage picture) {
+			this.originalPicture = picture;
+			this.displayPicture = picture;
+			
+			setCreating(false);
+			
+		}
+		
+		public void setCreating(boolean creating) {
+			this.creating = creating;
+		}
+		
+		public boolean isCreating() {
+			return creating;
 		}
 		
 		public boolean intersects(int x, int y) {

@@ -12,6 +12,8 @@ public class SelectionBoxManager {
 	
 	public SelectionBoxManager() {
 		
+		selection = new SelectionBox(0, 0);
+		
 		showBox = false;
 		
 	}
@@ -22,17 +24,15 @@ public class SelectionBoxManager {
 	
 	public void render(Graphics g) {
 		
-		if(showBox) {
+//		if(showBox) {
 			selection.paint(g);
-		}
+//		}
 		
 	}
 	
-	public void createSelectionBox(BufferedImage picture, int x, int y) {
+	public void updateBoxCreation(int x, int y) {
 		
-		selection = new SelectionBox(picture, x, y);
-		
-		showBox = true;
+		selection.updateMousePosition(x, y);
 		
 	}
 	
