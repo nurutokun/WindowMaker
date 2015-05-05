@@ -30,10 +30,10 @@ public class SelectionBoxManager {
 		
 	}
 	
-	public void updateBoxPosition(int x, int y) {
+	public void updateBoxCreation(int x, int y) {
 		
 		if(selection.isCreating()) {
-			
+			selection.updateMousePosition(x, y);
 		} else {
 			
 		}

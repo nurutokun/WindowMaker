@@ -224,9 +224,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //		System.out.println("potential(width, height): " + potentialWidth + ", " + potentialHeight +
 //				" picture(width, height): " + displayPicture.getWidth() + ", " + displayPicture.getHeight());
 		
+		handleMouse();
+		
 		if(dragging) {
-			
-			handleDragging();
 			
 			edited = true;
 		}
@@ -284,14 +284,16 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		window.repaint();
 	}
 	
-	private void handleDragging() {
+	private void handleMouse() {
 		
 		PenType type = penShape.getPenType();
 		
 		switch(type) {
 		
 		case DRAW:
-			renderPenStrokes();
+			if(dragging) {
+				renderPenStrokes();
+			}
 			break;
 		
 		case TWO_COORDINATES:
@@ -310,7 +312,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		switch(penShape) {
 		
 		case SELECT:
-			selectionManager.updateBoxPosition(x1, y1);
+			if(dragging) {
+				selectionManager.updateBoxCreation(x1, y1);
+			}
 			break;
 		
 		case LINE:

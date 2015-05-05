@@ -74,7 +74,7 @@ public class SelectionBox {
 		}
 		
 		public SelectionBox(int x, int y) {
-			this(null, x, y);
+			this(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), x, y);
 		}
 		
 		public void paint(Graphics g) {
@@ -93,9 +93,14 @@ public class SelectionBox {
 			if(displayPicture != null) {
 				g.drawImage(displayPicture, x, y, null);
 				
-			} else if(creating) {
+			} else {
 				g.setColor(Color.WHITE);
 				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
+			}
+			
+			if(creating) {
+				g.setColor(Color.GRAY);
+				g.drawRect(x, y, potentialWidth, potentialHeight);
 			}
 			
 			if(resizing) {
@@ -138,15 +143,32 @@ public class SelectionBox {
 			
 		}
 		
-		public void handleMouseMove(int x1, int y1, int x2, int y2) {
+		public void updateMousePosition(int x, int y) {
 			
-		}
-		
-		public void handleMousePress(int x, int y) {
+			int dx = x - this.x;
+			int dy = y - this.y ;
 			
-		}
-		
-		public void handleMouseRelease(int x, int y) {
+			if(dx < 0) {
+				
+				dx = -dx;
+				
+				this.x = x;
+				
+			}
+			
+			if(dy < 0) {
+				
+				dy = -dy;
+				
+				this.y = y;
+				
+			}
+			
+			dx = dx == 0? 1:dx;
+			dy = dy == 0? 1:dy;
+			
+			potentialWidth = dx;
+			potentialHeight = dy;
 			
 		}
 		
