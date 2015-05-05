@@ -23,7 +23,10 @@ public class SelectionBoxManager {
 	
 	public SelectionBoxManager() {
 		
+<<<<<<< HEAD
 		creatingBox = false;
+=======
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		showBox = false;
 		
 	}
@@ -45,11 +48,20 @@ public class SelectionBoxManager {
 		
 	}
 	
+<<<<<<< HEAD
 	public void createSelectionBox(BufferedImage picture, int x, int y, int scaleFactor) {
+=======
+	public void createSelectionBox(BufferedImage picture, int x, int y) {
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
+<<<<<<< HEAD
 		selection = new SelectionBox(picture, x, y, scaleFactor);
+=======
+		selection = new SelectionBox(picture, x, y);
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
 		showBox = true;
+<<<<<<< HEAD
 		
 	}
 	
@@ -73,6 +85,8 @@ public class SelectionBoxManager {
 			}
 			
 		}
+=======
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
 	}
 	

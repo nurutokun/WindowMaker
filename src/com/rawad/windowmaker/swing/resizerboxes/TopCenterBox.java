@@ -10,7 +10,11 @@ public class TopCenterBox extends ResizerBox {
 	public void updatePosition() {
 		
 		setX((getWidth()/2) - (BOX_WIDTH/2));
+<<<<<<< HEAD
 		setY(-BOX_HEIGHT-1);
+=======
+		setY(-BOX_HEIGHT);
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
 	}
 	

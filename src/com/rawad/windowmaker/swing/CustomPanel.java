@@ -95,7 +95,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
+<<<<<<< HEAD
 		penShape = Shapes.SELECT;
+=======
+		penShape = Shapes.RECTANGLE;
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
 		filePath = "res/test.png";
 		
@@ -388,6 +392,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		case TRIANGLE:
 			drawTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
+<<<<<<< HEAD
 			break;
 			
 		case SELECT:
@@ -409,6 +414,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				selectionManager.copySelectionOntoCanvas(this);
 			}
 			
+=======
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 			break;
 			
 		default:
@@ -585,6 +592,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public void setNewImageDimensions(int width, int height) {
 		
+<<<<<<< HEAD
+=======
+		//TODO: Copy over current image data and add new empty pixels
+		
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
