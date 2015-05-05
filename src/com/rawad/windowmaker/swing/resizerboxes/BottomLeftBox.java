@@ -9,7 +9,15 @@ public class BottomLeftBox extends ResizerBox {
 	
 	public void updatePosition() {
 		
+<<<<<<< HEAD
 		setX(-BOX_WIDTH);
+=======
+<<<<<<< HEAD
+		setX(-BOX_WIDTH-1);
+=======
+		setX(-BOX_WIDTH);
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
+>>>>>>> stash
 		setY(getHeight());
 		
 	}
