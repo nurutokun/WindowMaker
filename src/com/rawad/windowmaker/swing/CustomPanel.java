@@ -95,7 +95,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penShape = Shape.RECTANGLE;
+<<<<<<< HEAD
+		penShape = Shape.SELECT;
+=======
+<<<<<<< HEAD
+		penShape = Shapes.SELECT;
+=======
+		penShape = Shapes.RECTANGLE;
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
+>>>>>>> stash
 		
 		filePath = "res/test.png";
 		
@@ -226,17 +234,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		handleMouse();
 		
-		if(dragging) {
-			
-			edited = true;
-		}
-		
-		if(penShape == Shape.SELECT) {
-			
-//			selectionManager.c
-			
-		}
-		
 		if(rightBox.isDragging() || bottomBox.isDragging() || cornerBox.isDragging()) {
 			
 			int dx = x2 - x1;
@@ -312,9 +309,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		switch(penShape) {
 		
 		case SELECT:
+			
+			SelectionBox box = selectionManager.getLastBox();
+			
 			if(dragging) {
 				selectionManager.updateBoxCreation(x1, y1);
+			} else if(box.isCreating()) {
+				box.setImage(getSubimage(box.getX(), box.getY(), box.getPotentialWidth(), box.getPotentialHeight()));
 			}
+			
 			break;
 		
 		case LINE:
@@ -432,6 +435,33 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		case TRIANGLE:
 			drawTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+			break;
+			
+		case SELECT:
+			
+			SelectionBox box = selectionManager.getLastBox();
+			
+			x += (scaledStrokeWidth/2);
+			y += (scaledStrokeHeight/2);
+			
+			if(box == null) {
+				
+				selectionManager.setFirstPosition(x, y);
+				
+			} else if(box.intersects(x1, y1)) {
+				selectionManager.moveBox(x, y);
+				
+			} else {
+				// Copy selection onto picture
+				selectionManager.copySelectionOntoCanvas(this);
+			}
+			
+=======
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
+>>>>>>> stash
 			break;
 			
 		default:
@@ -606,10 +636,41 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
+	public BufferedImage getSubimage(int x, int y, int width, int height) {
+		
+		x = x*100/scaleFactor;
+		y = y*100/scaleFactor;
+		
+		width = width*100/scaleFactor;
+		height = height*100/scaleFactor;
+		
+		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		
+		for(int i = x; i < x+width; i++) {
+			for(int j = y; j < y+height; j++) {
+				
+				try {
+					temp.setRGB(i-x, j-y, originalPicture.getRGB(i, j));
+				} catch(Exception ex) {
+					temp.setRGB(i-x, j-y, INIT_PIC_BACKGROUND.getRGB());
+				}
+				
+			}
+		}
+		
+		return temp;
+		
+	}
+	
 	public void setNewImageDimensions(int width, int height) {
 		
 		//TODO: Copy over current image data and add new empty pixels
 		
+<<<<<<< HEAD
+=======
+		//TODO: Copy over current image data and add new empty pixels
+		
+>>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
