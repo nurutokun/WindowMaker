@@ -148,19 +148,17 @@ public class SelectionBox {
 			int dx = x - this.x;
 			int dy = y - this.y ;
 			
+			System.out.printf("original: %s, %s. new: %s, %s. deltas: %s, %s\n", this.x, this.y, x, y, dx, dy);
+			
 			if(dx < 0) {
 				
 				dx = -dx;
-				
-				this.x = x;
 				
 			}
 			
 			if(dy < 0) {
 				
 				dy = -dy;
-				
-				this.y = y;
 				
 			}
 			
@@ -169,6 +167,13 @@ public class SelectionBox {
 			
 			potentialWidth = dx;
 			potentialHeight = dy;
+			
+			if(!creating) {
+				this.x = x;
+				this.y = y;
+			}
+			
+			setCreating(true);
 			
 		}
 		
@@ -208,9 +213,28 @@ public class SelectionBox {
 			this.height = height;
 		}
 		
+		public int getPotentialWidth() {
+			return potentialWidth;
+		}
+		
+		public void setPotentialWidth(int potentialWidth) {
+			this.potentialWidth = potentialWidth;
+		}
+		
+		public int getPotentialHeight() {
+			return potentialHeight;
+		}
+		
+		public void setPotentialHeight(int potentialHeight) {
+			this.potentialHeight = potentialHeight;
+		}
+		
 		public void setImage(BufferedImage picture) {
 			this.originalPicture = picture;
 			this.displayPicture = picture;
+			
+			setCreating(false);
+			
 		}
 		
 		public void setCreating(boolean creating) {

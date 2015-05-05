@@ -24,27 +24,15 @@ public class SelectionBoxManager {
 	
 	public void render(Graphics g) {
 		
-		if(showBox) {
+//		if(showBox) {
 			selection.paint(g);
-		}
+//		}
 		
 	}
 	
 	public void updateBoxCreation(int x, int y) {
 		
-		if(selection.isCreating()) {
-			selection.updateMousePosition(x, y);
-		} else {
-			
-		}
-		
-	}
-	
-	public void createSelectionBox(BufferedImage picture, int x, int y) {
-		
-		selection = new SelectionBox(picture, x, y);
-		
-		showBox = true;
+		selection.updateMousePosition(x, y);
 		
 	}
 	
