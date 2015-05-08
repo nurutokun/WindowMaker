@@ -8,21 +8,13 @@ public class SelectionBoxManager {
 	// Could be an ArrayList
 	private SelectionBox selection;
 	
-	private boolean showBox;
+	private boolean creatingBox;
 	
 	public SelectionBoxManager() {
 		
-<<<<<<< HEAD
 		selection = new SelectionBox(0, 0);
 		
-=======
-<<<<<<< HEAD
 		creatingBox = false;
-=======
->>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
->>>>>>> stash
-		showBox = false;
-		
 	}
 	
 	public SelectionBox getLastBox() {
@@ -37,30 +29,17 @@ public class SelectionBoxManager {
 		
 	}
 	
-<<<<<<< HEAD
 	public void updateBoxCreation(int x, int y) {
-=======
-<<<<<<< HEAD
+		
 	public void createSelectionBox(BufferedImage picture, int x, int y, int scaleFactor) {
-=======
+		
 	public void createSelectionBox(BufferedImage picture, int x, int y) {
->>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
->>>>>>> stash
 		
-<<<<<<< HEAD
 		selection.updateMousePosition(x, y);
-=======
-<<<<<<< HEAD
-		selection = new SelectionBox(picture, x, y, scaleFactor);
-=======
-		selection = new SelectionBox(picture, x, y);
->>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
->>>>>>> stash
 		
-<<<<<<< HEAD
-=======
-		showBox = true;
-<<<<<<< HEAD
+		selection = new SelectionBox(picture, x, y, scaleFactor);
+		
+		selection = new SelectionBox(picture, x, y);
 		
 	}
 	
@@ -84,8 +63,6 @@ public class SelectionBoxManager {
 			}
 			
 		}
-=======
->>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
 		
 	}
 	
@@ -170,7 +147,6 @@ public class SelectionBoxManager {
 	
 	public boolean isCreating() {
 		return creatingBox;
->>>>>>> stash
 	}
 	
 }
