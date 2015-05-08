@@ -3,12 +3,7 @@ package com.rawad.windowmaker.swing.resizerboxes;
 import java.awt.Color;
 import java.awt.Graphics;
 
-<<<<<<< HEAD
-public class ResizerBox {
-=======
-<<<<<<< HEAD
 public abstract class ResizerBox {
->>>>>>> stash
 	
 	public static final int BOX_WIDTH = 6;
 	public static final int BOX_HEIGHT = 6;
@@ -61,70 +56,8 @@ public abstract class ResizerBox {
 	
 	public boolean intersects(int x, int y) {
 		
-<<<<<<< HEAD
-		if(	(x > this.x && x < (this.x + width)) &&
-			(y > this.y && y < (this.y + height))) {
-=======
 		if(	(x > this.x + containerX && x < (this.x + containerX + width)) &&
 			(y > this.y + containerY && y < (this.y + containerY + height))) {
-=======
-public class ResizerBox {
-	
-	public static final int BOX_WIDTH = 6;
-	public static final int BOX_HEIGHT = 6;
-	
-	private final int width;
-	private final int height;
-	
-	private int x;
-	private int y;
-	
-	private int containerX;
-	private int containerY;
-	
-	private int containerWidth;
-	private int containerHeight;
-	
-	private boolean dragging;
-	
-	public ResizerBox(int containerWidth, int containerHeight) {
-		this.x = 0;
-		this.y = 0;
-		
-		this.containerWidth = containerWidth;
-		this.containerHeight = containerHeight;
-		
-		this.width = BOX_WIDTH;
-		this.height = BOX_HEIGHT;
-		
-		dragging = false;
-	}
-	
-	public void render(Graphics g, int containerWidth, int containerHeight) {
-		
-		setWidth(containerWidth);
-		setHeight(containerHeight);
-		
-		updatePosition();
-		
-		g.setColor(Color.GRAY);
-		g.drawRect(containerX + x, containerY + y, width, height);
-		
-		g.setColor(Color.WHITE);
-		g.fillRect(containerX + x + 1, containerY + y + 1 , width-1, height-1);
-		
-	}
-	
-	public void updatePosition() {
-		
-	}
-	
-	public boolean intersects(int x, int y) {
-		
-		if(	(x > this.x && x < (this.x + width)) &&
-			(y > this.y && y < (this.y + height))) {
->>>>>>> branch 'myBranch' of https://github.com/nurutokun/WindowMaker
->>>>>>> stash
 			return true;
 		}
 		
