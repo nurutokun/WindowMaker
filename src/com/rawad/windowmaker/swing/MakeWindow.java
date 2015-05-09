@@ -100,6 +100,7 @@ public class MakeWindow {
 				// mntmSaveFile.doClick();// saves the file just in case
 
 				if (customPanel.isEdited()) {
+
 					int re = JOptionPane
 							.showConfirmDialog(frmFrameTitle,
 									"There are unsaved changes in this. Do you want to save them?");

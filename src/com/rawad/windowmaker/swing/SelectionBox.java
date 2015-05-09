@@ -101,10 +101,12 @@ public class SelectionBox {
 				
 				g.drawImage(displayPicture, x, y, null);
 				
-				g.setColor(Color.GRAY);
-				g.drawRect(x, y, potentialWidth, potentialHeight);
-				
 			} else {
+//				g.setColor(Color.WHITE);
+//				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
+			}
+			
+			if(creating) {
 				g.setColor(Color.GRAY);
 				g.drawRect(x, y, potentialWidth, potentialHeight);
 			}
@@ -151,8 +153,8 @@ public class SelectionBox {
 		
 		public void initCreation(int x, int y) {
 			
-			this.x = prevX = x;
-			this.y = prevY = y;
+			this.x = x;
+			this.y = y;
 			
 			width = potentialWidth = 0;
 			height = potentialHeight = 0;
@@ -189,18 +191,14 @@ public class SelectionBox {
 			potentialWidth = dx;
 			potentialHeight = dy;
 			
-			System.out.printf("original: %s, %s. new: %s, %s. deltas/dimensions: %s, %s\n", this.x, this.y, x, y, dx, dy);
-			
 		}
 		
 		public void finalizeCreation(CustomPanel drawingCanvas, int x, int y) {
-				
+			
 			if(creating && (this.x != x) && (this.y != y)) {
 				
-//				potentialWidth = Math.abs(prevX - x);
-//				potentialHeight = Math.abs(prevY - y);
-				
-				System.out.printf("potentialWidth, potentialHeight: %s, %s\n", potentialWidth, potentialHeight);
+				potentialWidth = Math.abs(this.x - x);
+				potentialHeight = Math.abs(this.y - y);
 				
 				originalPicture = drawingCanvas.getSubimage(this.x, this.y, potentialWidth, potentialHeight);
 				displayPicture = originalPicture;
