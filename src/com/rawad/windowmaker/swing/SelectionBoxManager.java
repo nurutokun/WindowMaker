@@ -1,19 +1,20 @@
 package com.rawad.windowmaker.swing;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 public class SelectionBoxManager {
 	
 	// Could be an ArrayList
 	private SelectionBox selection;
 	
-	private boolean creatingBox;
+	private boolean movingBox;
 	
 	public SelectionBoxManager() {
 		
 		selection = new SelectionBox(0, 0);
 		
-		creatingBox = false;
+		movingBox = false;
 	}
 	
 	public SelectionBox getLastBox() {
@@ -22,92 +23,49 @@ public class SelectionBoxManager {
 	
 	public void render(Graphics g) {
 		
-//		if(showBox) {
-			selection.paint(g);
-//		}
+		SelectionBox box = getLastBox();
+		
+		box.paint(g);
 		
 	}
 	
-	public void handleMouse(int x, int y) {
-		getLastBox().updateMousePosition(x, y);
-	}
-	
-	/*
-	public void updateBoxCreation(int x, int y) {
+	public void handleMouse(CustomPanel drawingCanvas, int x, int y) {
 		
-	public void createSelectionBox(BufferedImage picture, int x, int y, int scaleFactor) {
+		SelectionBox box = getLastBox();
 		
-	public void createSelectionBox(BufferedImage picture, int x, int y) {
-		
-		selection.updateMousePosition(x, y);
-		
-		selection = new SelectionBox(picture, x, y, scaleFactor);
-		
-		selection = new SelectionBox(picture, x, y);
-		
-	}
-	
-	public void setFirstPosition(int x, int y) {
-		
-		if(!creatingBox) {
-			this.x1 = x;
-			this.y1 = y;
+		if(movingBox) {
+			box.move(x, y);
 			
-			creatingBox = true;
+		} else if(box.isCreating()) {
+			
+			box.updateMousePosition(x, y);
+			
+		} else if(box.intersects(x, y)) {
+			
+			movingBox = true;
+			
 		} else {
-			potentialWidth = Math.abs(x - x1);
-			potentialHeight = Math.abs(y - y1);
 			
-			if(potentialWidth == 0) {
-				potentialWidth = 1;
+			if(box.isCreated()) {
+				copySelectionOntoCanvas(drawingCanvas);
+				
 			}
 			
-			if(potentialHeight == 0) {
-				potentialHeight = 1;
-			}
+			box.initCreation(x, y);// This stays for when we copy onto original image to make the box disappear, since the x/y are the same
 			
 		}
 		
 	}
 	
-	public void setLastPosition(CustomPanel drawingCanvas, int x, int y) {
+	public void handleMouseRelease(CustomPanel drawingCanvas, int x, int y) {
 		
-		if(creatingBox) {
-			
-			if(x1 > x) {
-				x2 = x1;
-				x1 = x;
-			} else {
-				x2 = x;
-			}
-			
-			if(y1 > y) {
-				y2 = y1;
-				y1 = y;
-			} else {
-				y2 = y;
-			}
-			
-			creatingBox = false;
-			
-		}
+		SelectionBox box = getLastBox();
 		
-		int width = Math.abs(x2-x1);
-		int height = Math.abs(y2-y1);
+		box.finalizeCreation(drawingCanvas, x, y);
 		
-		width = width == 0? 1:width;
-		height = height == 0? 1:height;
+		box.handleHover(x, y);
 		
-		createSelectionBox(drawingCanvas.getSubImage(x1, y1, width, height), x1, y1, drawingCanvas.getScaleFactor());
-		
-		for(int i = x1; i < x1+width; i++) {
-			for(int j = y1; j < y1+height; j++) {
-				
-				drawingCanvas.setPixel(i, j, CustomPanel.INIT_PIC_BACKGROUND.getRGB());
-				
-			}
-		}
-		
+		movingBox = false;
 	}
 	
 	public void copySelectionOntoCanvas(CustomPanel drawingCanvas) {
@@ -127,29 +85,6 @@ public class SelectionBoxManager {
 			}
 		}
 		
-		// TODO
-		// Be sure to change this if/when adding more boxes
-		selection = null;
-		
-	}/**/
-	
-	public void moveBox(int x, int y) {
-		
-		getLastBox().move(x, y);
-			
-	}
-	
-	public void stopDragging() {
-		SelectionBox box = getLastBox();
-		
-		if(box != null) {
-			getLastBox().setDragging(false);
-		}
-		
-	}
-	
-	public boolean isCreating() {
-		return creatingBox;
 	}
 	
 }
