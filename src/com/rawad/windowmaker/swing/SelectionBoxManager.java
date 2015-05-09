@@ -1,7 +1,6 @@
 package com.rawad.windowmaker.swing;
 
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 
 public class SelectionBoxManager {
 	
@@ -29,6 +28,11 @@ public class SelectionBoxManager {
 		
 	}
 	
+	public void handleMouse(int x, int y) {
+		getLastBox().updateMousePosition(x, y);
+	}
+	
+	/*
 	public void updateBoxCreation(int x, int y) {
 		
 	public void createSelectionBox(BufferedImage picture, int x, int y, int scaleFactor) {
@@ -126,9 +130,8 @@ public class SelectionBoxManager {
 		// TODO
 		// Be sure to change this if/when adding more boxes
 		selection = null;
-		showBox = false;
 		
-	}
+	}/**/
 	
 	public void moveBox(int x, int y) {
 		

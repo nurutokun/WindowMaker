@@ -43,6 +43,7 @@ public class SelectionBox {
 		
 		private boolean resizing;
 		private boolean creating;
+		private boolean dragging;
 		
 		public SelectionBox(BufferedImage originalPicture, int x, int y) {
 			
@@ -70,6 +71,7 @@ public class SelectionBox {
 			
 			resizing = false;
 			creating = false;
+			dragging = false;
 			
 		}
 		
@@ -175,6 +177,11 @@ public class SelectionBox {
 			
 			setCreating(true);
 			
+		}
+		
+		public void move(int x, int y) {
+			setX(x);
+			setY(y);
 		}
 		
 		public Cursor getCursor() {

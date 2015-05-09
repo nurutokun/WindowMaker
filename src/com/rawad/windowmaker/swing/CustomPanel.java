@@ -95,7 +95,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penShape = Shape.SElECT;
+		penShape = Shape.SELECT;
 		
 		filePath = "res/test.png";
 		
@@ -302,10 +302,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		case SELECT:
 			
+			selectionManager.handleMouse(x2, y2);
+			
 			SelectionBox box = selectionManager.getLastBox();
 			
 			if(dragging) {
-				selectionManager.updateBoxCreation(x1, y1);
+//				selectionManager.updateBoxCreation(x1, y1);
 			} else if(box.isCreating()) {
 				box.setImage(getSubimage(box.getX(), box.getY(), box.getPotentialWidth(), box.getPotentialHeight()));
 			}
@@ -427,26 +429,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		case TRIANGLE:
 			drawTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
-			break;
-			
-		case SELECT:
-			
-			SelectionBox box = selectionManager.getLastBox();
-			
-			x += (scaledStrokeWidth/2);
-			y += (scaledStrokeHeight/2);
-			
-			if(box == null) {
-				
-				selectionManager.setFirstPosition(x, y);
-				
-			} else if(box.intersects(x1, y1)) {
-				selectionManager.moveBox(x, y);
-				
-			} else {
-				// Copy selection onto picture
-				selectionManager.copySelectionOntoCanvas(this);
-			}
 			break;
 			
 		default:
@@ -663,8 +645,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		}
 		
 		if(width < originalPicture.getWidth()) {
-			
-			System.out.println("width less than actual");
 			
 			for(int i = width; i < originalPicture.getWidth(); i++) {
 				for(int j = 0; j < originalPicture.getHeight(); j++) {
