@@ -253,7 +253,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 					potentialWidth += (dx);
 					potentialHeight += (dy);
 					
-					cursor = Cursors.DIAGONAL.getCursor();
+					cursor = Cursors.SE_DIAGONAL.getCursor();
 					
 				}
 				
@@ -302,14 +302,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		case SELECT:
 			
-			selectionManager.handleMouse(x2, y2);
-			
-			SelectionBox box = selectionManager.getLastBox();
-			
 			if(dragging) {
-//				selectionManager.updateBoxCreation(x1, y1);
-			} else if(box.isCreating()) {
-				box.setImage(getSubimage(box.getX(), box.getY(), box.getPotentialWidth(), box.getPotentialHeight()));
+				selectionManager.handleMouse(this, x2, y2);
+			} else {
+				selectionManager.handleMouseRelease(this, x2, y2);
+				
+				cursor = selectionManager.getLastBox().getCursor();
 			}
 			
 			break;
@@ -605,11 +603,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public BufferedImage getSubimage(int x, int y, int width, int height) {
 		
-		x = x*100/scaleFactor;
-		y = y*100/scaleFactor;
+//		x = x*100/scaleFactor;
+//		y = y*100/scaleFactor;
 		
-		width = width*100/scaleFactor;
-		height = height*100/scaleFactor;
+//		width = width*100/scaleFactor;
+//		height = height*100/scaleFactor;
 		
 		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
@@ -617,7 +615,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			for(int j = y; j < y+height; j++) {
 				
 				try {
-					temp.setRGB(i-x, j-y, originalPicture.getRGB(i, j));
+					temp.setRGB(i-x, j-y, displayPicture.getRGB(i, j));
 				} catch(Exception ex) {
 					temp.setRGB(i-x, j-y, INIT_PIC_BACKGROUND.getRGB());
 				}
@@ -857,7 +855,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	}
 	
 	private void handleCursorHover(int x, int y) {
-
+		
 		if(rightBox.intersects(x, y)) {
 			
 			cursor = Cursors.HORIZONTAL.getCursor();
@@ -868,7 +866,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		} else if(cornerBox.intersects(x, y)) {
 			
-			cursor = Cursors.DIAGONAL.getCursor();
+			cursor = Cursors.SE_DIAGONAL.getCursor();
 			
 		} else {
 			cursor = Cursors.DEFAULT.getCursor();

@@ -33,6 +33,9 @@ public class SelectionBox {
 		private int x;
 		private int y;
 		
+		private int prevX;
+		private int prevY;
+		
 		private int width;
 		private int height;
 		
@@ -43,7 +46,7 @@ public class SelectionBox {
 		
 		private boolean resizing;
 		private boolean creating;
-		private boolean dragging;
+		private boolean created;
 		
 		public SelectionBox(BufferedImage originalPicture, int x, int y) {
 			
@@ -71,7 +74,7 @@ public class SelectionBox {
 			
 			resizing = false;
 			creating = false;
-			dragging = false;
+			created = false;
 			
 		}
 		
@@ -83,21 +86,24 @@ public class SelectionBox {
 			
 			updateResizeBoxPositions();
 			
-			tlBox.render(g, width, height);
-			tcBox.render(g, width, height);
-			trBox.render(g, width, height);
-			clBox.render(g, width, height);
-			crBox.render(g, width, height);
-			blBox.render(g, width, height);
-			bcBox.render(g, width, height);
-			brBox.render(g, width, height);
+			if(created) {
+				tlBox.render(g, width, height);
+				tcBox.render(g, width, height);
+				trBox.render(g, width, height);
+				clBox.render(g, width, height);
+				crBox.render(g, width, height);
+				blBox.render(g, width, height);
+				bcBox.render(g, width, height);
+				brBox.render(g, width, height);
+			}
 			
-			if(displayPicture != null) {
+			if(displayPicture != null && created) {
+				
 				g.drawImage(displayPicture, x, y, null);
 				
 			} else {
-				g.setColor(Color.WHITE);
-				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
+//				g.setColor(Color.WHITE);
+//				g.fillRect(x + 1, y + 1, potentialWidth - 1, potentialHeight - 1);
 			}
 			
 			if(creating) {
@@ -145,22 +151,37 @@ public class SelectionBox {
 			
 		}
 		
+		public void initCreation(int x, int y) {
+			
+			this.x = x;
+			this.y = y;
+			
+			width = potentialWidth = 0;
+			height = potentialHeight = 0;
+			
+			creating = true;
+			created = false;
+			
+		}
+		
 		public void updateMousePosition(int x, int y) {
 			
-			int dx = x - this.x;
-			int dy = y - this.y ;
-			
-			System.out.printf("original: %s, %s. new: %s, %s. deltas: %s, %s\n", this.x, this.y, x, y, dx, dy);
+			int dx = x - prevX;
+			int dy = y - prevY;
 			
 			if(dx < 0) {
 				
 				dx = -dx;
+				
+				this.x = x;
 				
 			}
 			
 			if(dy < 0) {
 				
 				dy = -dy;
+				
+				this.y = y;
 				
 			}
 			
@@ -170,18 +191,78 @@ public class SelectionBox {
 			potentialWidth = dx;
 			potentialHeight = dy;
 			
-			if(!creating) {
-				this.x = x;
-				this.y = y;
+		}
+		
+		public void finalizeCreation(CustomPanel drawingCanvas, int x, int y) {
+			
+			if(creating && (this.x != x) && (this.y != y)) {
+				
+				potentialWidth = Math.abs(this.x - x);
+				potentialHeight = Math.abs(this.y - y);
+				
+				originalPicture = drawingCanvas.getSubimage(this.x, this.y, potentialWidth, potentialHeight);
+				displayPicture = originalPicture;
+				
+				width = potentialWidth;
+				height = potentialHeight;
+				
+				created = true;
 			}
 			
-			setCreating(true);
+			creating = false;
+			
+		}
+		
+		public void handleHover(int x, int y) {
+			
+			Cursors temp = Cursors.DEFAULT;
+			
+			if(tlBox.intersects(x, y)) {
+				
+				temp = Cursors.NW_DIAGONAL;
+				
+			} else if(tcBox.intersects(x, y)) {
+				
+				temp = Cursors.VERTICAL;
+				
+			} else if(trBox.intersects(x, y)) {
+				
+				temp = Cursors.NE_DIAGONAL;
+				
+			} else if(clBox.intersects(x, y)) {
+				
+				temp = Cursors.HORIZONTAL;
+				
+			} else if(crBox.intersects(x, y)) {
+				
+				temp = Cursors.HORIZONTAL;
+				
+			} else if(blBox.intersects(x, y)) {
+				
+				temp = Cursors.SW_DIAGONAL;
+				
+			} else if(bcBox.intersects(x, y)) {
+				
+				temp = Cursors.VERTICAL;
+				
+			} else if(brBox.intersects(x, y)) {
+				
+				temp = Cursors.SE_DIAGONAL;
+				
+			}
+			
+			cursor = temp.getCursor();
 			
 		}
 		
 		public void move(int x, int y) {
-			setX(x);
-			setY(y);
+			//TODO: this sucks, make it better
+			setX(x-(width/2));
+			setY(y-(height/2));
+		}
+		
+		public BufferedImage getImage() {
+			return displayPicture;
 		}
 		
 		public Cursor getCursor() {
@@ -236,24 +317,12 @@ public class SelectionBox {
 			this.potentialHeight = potentialHeight;
 		}
 		
-		public void setImage(BufferedImage picture) {
-			this.originalPicture = picture;
-			this.displayPicture = picture;
-			
-			setCreating(false);
-			
-		}
-		
-		public void setCreating(boolean creating) {
-			this.creating = creating;
-		}
-		
 		public boolean isCreating() {
 			return creating;
 		}
 		
-		public void setDragging(boolean dragging) {
-			this.dragging = dragging;
+		public boolean isCreated() {
+			return created;
 		}
 		
 		public boolean intersects(int x, int y) {
