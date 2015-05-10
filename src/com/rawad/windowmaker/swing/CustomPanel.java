@@ -157,14 +157,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int maxWidth = window.getViewPortWidth() > viewWidth? viewWidth:window.getViewPortWidth();
 		int maxHeight = window.getViewPortHeight() > viewHeight? viewHeight:window.getViewPortHeight();
 		
-		System.out.println((maxWidth - x) + ", " + (maxHeight - y));
-		
 		for(int i = y; i < y + maxHeight; i++) {
 			for(int j = x; j < x + maxWidth; j++) {
 				
 				try {
 					g.setColor(new Color(displayPicture.getRGB(j, i)));
-					g.fillRect(j - x, i - y, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+					g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
 				} catch(Exception ex) {
 //					System.out.println(i + ", " + j + " is out of bounds.");
 //					ex.printStackTrace();
