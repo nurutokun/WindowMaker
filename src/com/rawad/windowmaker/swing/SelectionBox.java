@@ -47,6 +47,7 @@ public class SelectionBox {
 		private boolean resizing;
 		private boolean creating;
 		private boolean created;
+		private boolean moved;
 		
 		public SelectionBox(BufferedImage originalPicture, int x, int y) {
 			
@@ -75,6 +76,7 @@ public class SelectionBox {
 			resizing = false;
 			creating = false;
 			created = false;
+			moved = false;
 			
 		}
 		
@@ -100,6 +102,9 @@ public class SelectionBox {
 			if(displayPicture != null && created) {
 				
 				g.drawImage(displayPicture, x, y, null);
+				
+				g.setColor(Color.GRAY);
+				g.drawRect(x - 1, y - 1, width + 1, height + 1);
 				
 			} else {
 //				g.setColor(Color.WHITE);
@@ -156,6 +161,9 @@ public class SelectionBox {
 			this.x = x;
 			this.y = y;
 			
+			prevX = x;
+			prevY = y;
+			
 			width = potentialWidth = 0;
 			height = potentialHeight = 0;
 			
@@ -195,10 +203,10 @@ public class SelectionBox {
 		
 		public void finalizeCreation(CustomPanel drawingCanvas, int x, int y) {
 			
-			if(creating && (this.x != x) && (this.y != y)) {
+			if(creating && prevX != x && prevY != y) {
 				
-				potentialWidth = Math.abs(this.x - x);
-				potentialHeight = Math.abs(this.y - y);
+//				potentialWidth = potentialWidth == 0? 1:potentialWidth;
+//				potentialHeight = potentialHeight == 0? 1:potentialHeight;
 				
 				originalPicture = drawingCanvas.getSubimage(this.x, this.y, potentialWidth, potentialHeight);
 				displayPicture = originalPicture;
@@ -207,6 +215,7 @@ public class SelectionBox {
 				height = potentialHeight;
 				
 				created = true;
+				moved = false;
 			}
 			
 			creating = false;
@@ -255,10 +264,18 @@ public class SelectionBox {
 			
 		}
 		
-		public void move(int x, int y) {
+		public void move(CustomPanel drawingCanvas, int x, int y) {
+			
+			if(!moved) {
+				drawingCanvas.fillRectangle(this.x, this.y, potentialWidth, potentialHeight, CustomPanel.INIT_PIC_BACKGROUND.getRGB());
+			}
+			
 			//TODO: this sucks, make it better
 			setX(x-(width/2));
 			setY(y-(height/2));
+			
+			moved = true;
+			
 		}
 		
 		public BufferedImage getImage() {

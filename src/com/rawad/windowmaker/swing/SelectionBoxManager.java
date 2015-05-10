@@ -34,7 +34,7 @@ public class SelectionBoxManager {
 		SelectionBox box = getLastBox();
 		
 		if(movingBox) {
-			box.move(x, y);
+			box.move(drawingCanvas, x, y);
 			
 		} else if(box.isCreating()) {
 			
@@ -79,7 +79,7 @@ public class SelectionBoxManager {
 				try {
 					drawingCanvas.setPixel(i, j, temp.getRGB(i - box.getX(), j - box.getY()));
 				} catch(ArrayIndexOutOfBoundsException ex) {
-					System.out.println((i-box.getX()) + ", " + (j-box.getY()) + " is out of bounds");
+//					System.out.println((i-box.getX()) + ", " + (j-box.getY()) + " is out of bounds");
 				}
 				
 			}

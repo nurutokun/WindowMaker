@@ -25,7 +25,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public static final int MAX_PEN_WIDTH = 100;
 	public static final int MAX_PEN_HEIGHT = 100;
 	
-	private static final Color INIT_PIC_BACKGROUND = new Color(0xFFFFFFFF);
+	public static final Color INIT_PIC_BACKGROUND = new Color(0xFFFFFFFF);
 	
 	/**
 	 * Big, Long, number
@@ -36,6 +36,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private BufferedImage originalPicture;
 	private BufferedImage displayPicture;
+	private BufferedImage comparisonPicture;
 	
 	private ChangeManager changeManager;
 	private SelectionBoxManager selectionManager;
@@ -124,7 +125,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(displayPicture != null) {
 			drawDisplayPicture(g);
-			g.drawImage(displayPicture, 0, 0, null);
+			
 		} else {
 			g.drawString("Put A Pic In Me", getWidth()/2 - (50), getHeight()/2);
 		}
@@ -156,11 +157,16 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int maxWidth = window.getViewPortWidth() > viewWidth? viewWidth:window.getViewPortWidth();
 		int maxHeight = window.getViewPortHeight() > viewHeight? viewHeight:window.getViewPortHeight();
 		
-		for(int i = y; i < maxHeight; i++) {
-			for(int j = x; j < maxWidth; j++) {
+		for(int i = y; i < y + maxHeight; i++) {
+			for(int j = x; j < x + maxWidth; j++) {
 				
-				g.setColor(new Color(displayPicture.getRGB(j, i)));
-				g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+				try {
+					g.setColor(new Color(displayPicture.getRGB(j - maxWidth, i - maxHeight)));
+					g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+				} catch(Exception ex) {
+//					System.out.println(i + ", " + j + " is out of bounds.");
+					ex.printStackTrace();
+				}
 				
 			}
 		}
@@ -215,6 +221,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		} finally {
 			originalPicture = displayPicture;
+			comparisonPicture = displayPicture;
 		}
 		
 	}
@@ -418,15 +425,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		switch(penShape) {
 		
 		case RECTANGLE:
-			drawRectangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
+			fillRectangle(x, y, scaledStrokeWidth, scaledStrokeHeight, getPenRGB());
 			break;
 			
 		case CIRCLE:
-			drawCircle(x, y, scaledStrokeWidth, scaledStrokeHeight);
+			fillCircle(x, y, scaledStrokeWidth, scaledStrokeHeight);
 			break;
 			
 		case TRIANGLE:
-			drawTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
+			fillTriangle(x, y, scaledStrokeWidth, scaledStrokeHeight);
 			break;
 			
 		default:
@@ -438,7 +445,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	private void drawRectangle(int x, int y, int strokeWidth, int strokeHeight) {
+	public void fillRectangle(int x, int y, int strokeWidth, int strokeHeight, int colour) {
 		
 //		System.out.printf("x,y: %s,%s | width, height: %s,%s\n", x, y, strokeWidth, strokeHeight);
 		
@@ -454,7 +461,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 				
 				try {
 					
-					setPixel(i, j, getPenRGB());
+					setPixel(i, j, colour);
 					
 				} catch(ArrayIndexOutOfBoundsException ex) {
 					break;
@@ -465,7 +472,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	private void drawCircle(int x, int y, int strokeWidth, int strokeHeight) {
+	private void fillCircle(int x, int y, int strokeWidth, int strokeHeight) {
 		
 		int radius = strokeWidth + strokeHeight /2;
 		
@@ -501,7 +508,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	private void drawTriangle(int x, int y, int strokeWidth, int strokeHeight) {
+	private void fillTriangle(int x, int y, int strokeWidth, int strokeHeight) {
 		
 		//	0,0				strokeWidth,0
 		//	0,strokeHeight	strokeWidth,strokeHeight
@@ -706,7 +713,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	}
 	
 	public void setDisplayPicture(BufferedImage pic, String filePath) {
-		originalPicture = displayPicture = pic;
+		originalPicture = pic;
+		displayPicture = pic;
+		comparisonPicture = pic;
 		
 		this.filePath = filePath;
 		
@@ -738,13 +747,13 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
-	public static BufferedImage getScaledImage(BufferedImage original, double scaleFactor) {
+	public static BufferedImage getScaledImage(BufferedImage original, int width, int height) {
 		
 		int w1 = original.getWidth();
-		int w2 = (int) (w1 * (scaleFactor/100d));
+		int w2 = (int) width;
 		
 		int h1 = original.getHeight();
-		int h2 = (int) (h1 * (scaleFactor/100d));
+		int h2 = (int) height;
 		
 		if(w2 <= 0 || h2 <= 0) {
 			return original;
@@ -772,8 +781,40 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 	
+	public static BufferedImage getScaledImage(BufferedImage original, double scaleFactor) {
+		return getScaledImage(original, (int) (original.getWidth() * (scaleFactor/100d)), (int) (original.getHeight() * (scaleFactor/100d)));
+	}
+	
 	public boolean isEdited() {
-		return edited;
+		return !areImagesIdentical(comparisonPicture, originalPicture);
+	}
+	
+	private boolean areImagesIdentical(BufferedImage firstImage, BufferedImage secondImage) {
+		
+		System.out.println(firstImage.getRGB(0,  0) + ", " + secondImage.getRGB(0, 0));
+		
+		if(firstImage.getWidth() != secondImage.getWidth() || firstImage.getHeight() != secondImage.getHeight()) {
+			return false;
+		}
+		
+		for(int i = 0; i < firstImage.getWidth(); i++) {
+			for(int j = 0; j < firstImage.getHeight(); j++) {
+				
+				int colour1 = firstImage.getRGB(i, j);
+				int colour2 = secondImage.getRGB(i, j);
+				
+//				System.out.printf("colour 1,2: %s, %s \n", colour1, colour2);
+				
+				if(colour1 != colour2) {
+					System.out.println("pixels don't equal");
+					return false;
+				}
+				
+			}
+		}
+		
+		return true;
+		
 	}
 	
 	public int getScaleFactor() {
