@@ -793,8 +793,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private boolean areImagesIdentical(BufferedImage firstImage, BufferedImage secondImage) {
 		
-		System.out.println(firstImage.getRGB(0,  0) + ", " + secondImage.getRGB(0, 0));
-		
 		if(firstImage.getWidth() != secondImage.getWidth() || firstImage.getHeight() != secondImage.getHeight()) {
 			return false;
 		}
@@ -808,7 +806,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //				System.out.printf("colour 1,2: %s, %s \n", colour1, colour2);
 				
 				if(colour1 != colour2) {
-					System.out.println("pixels don't equal");
 					return false;
 				}
 				
