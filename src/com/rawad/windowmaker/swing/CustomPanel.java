@@ -75,7 +75,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private boolean dragging;
 	private boolean resizing;
-	private boolean edited;
 	
 	public CustomPanel() {
 		super();
@@ -86,7 +85,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		dragging = false;
 		resizing = false;
-		edited = false;
 		
 		window = MakeWindow.instance();
 		
@@ -157,14 +155,12 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int maxWidth = window.getViewPortWidth() > viewWidth? viewWidth:window.getViewPortWidth();
 		int maxHeight = window.getViewPortHeight() > viewHeight? viewHeight:window.getViewPortHeight();
 		
-		System.out.println((maxWidth - x) + ", " + (maxHeight - y));
-		
 		for(int i = y; i < y + maxHeight; i++) {
 			for(int j = x; j < x + maxWidth; j++) {
 				
 				try {
 					g.setColor(new Color(displayPicture.getRGB(j, i)));
-					g.fillRect(j - x, i - y, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+					g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
 				} catch(Exception ex) {
 //					System.out.println(i + ", " + j + " is out of bounds.");
 //					ex.printStackTrace();
@@ -178,11 +174,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void saveImage() {
 		
 		try {
-			if(!filePath.equals("") && isEdited()) {
+			if(!filePath.equals("")) {
 				
 				ImageIO.write(originalPicture, filePath.substring(filePath.length()-3), new File(filePath));
 				
-				edited = false;
 			}
 		} catch(IOException ex) {
 			ex.printStackTrace();
@@ -223,7 +218,10 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 		} finally {
 			originalPicture = displayPicture;
-			comparisonPicture = displayPicture;
+			
+			comparisonPicture = new BufferedImage(displayPicture.getWidth(), displayPicture.getHeight(), displayPicture.getType());
+			
+			comparisonPicture.setData(displayPicture.getData());
 		}
 		
 	}
@@ -638,8 +636,6 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public void setNewImageDimensions(int width, int height) {
 		
-		//TODO: Copy over current image data and add new empty pixels
-		
 		width = width * 100/scaleFactor;
 		height = height * 100/scaleFactor;
 		
@@ -717,7 +713,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void setDisplayPicture(BufferedImage pic, String filePath) {
 		originalPicture = pic;
 		displayPicture = pic;
-		comparisonPicture = pic;
+		
+		comparisonPicture = new BufferedImage(pic.getWidth(), pic.getHeight(), pic.getType());
+		comparisonPicture.setData(pic.getData());
 		
 		this.filePath = filePath;
 		
