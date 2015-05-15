@@ -10,6 +10,7 @@ import com.rawad.windowmaker.swing.resizerboxes.BottomLeftBox;
 import com.rawad.windowmaker.swing.resizerboxes.BottomRightBox;
 import com.rawad.windowmaker.swing.resizerboxes.CenterLeftBox;
 import com.rawad.windowmaker.swing.resizerboxes.CenterRightBox;
+import com.rawad.windowmaker.swing.resizerboxes.ResizerBox;
 import com.rawad.windowmaker.swing.resizerboxes.TopCenterBox;
 import com.rawad.windowmaker.swing.resizerboxes.TopLeftBox;
 import com.rawad.windowmaker.swing.resizerboxes.TopRightBox;
@@ -27,6 +28,8 @@ public class SelectionBox {
 		private BottomLeftBox blBox;
 		private BottomCenterBox bcBox;
 		private BottomRightBox brBox;
+		
+		private ResizerBox[] boxes;
 		
 		private Cursor cursor;
 		
@@ -68,6 +71,8 @@ public class SelectionBox {
 			bcBox = new BottomCenterBox(width, height);
 			brBox = new BottomRightBox(width, height);
 			
+			boxes = new ResizerBox[]{tlBox, tcBox, trBox, clBox, crBox, clBox, blBox, bcBox, brBox};
+			
 			this.x = x;
 			this.y = y;
 			
@@ -89,14 +94,11 @@ public class SelectionBox {
 			updateResizeBoxPositions();
 			
 			if(created) {
-				tlBox.render(g, width, height);
-				tcBox.render(g, width, height);
-				trBox.render(g, width, height);
-				clBox.render(g, width, height);
-				crBox.render(g, width, height);
-				blBox.render(g, width, height);
-				bcBox.render(g, width, height);
-				brBox.render(g, width, height);
+				
+				for(ResizerBox box: boxes) {
+					box.render(g, width, height);
+				}
+				
 			}
 			
 			if(displayPicture != null && created) {
@@ -130,29 +132,13 @@ public class SelectionBox {
 			// 3		4
 			// 5	6	7
 			
-			tlBox.setContainerX(x);
-			tlBox.setContainerY(y);
+			for(ResizerBox box: boxes) {
+				
+				box.setContainerX(x);
+				box.setContainerY(y);
+				
+			}
 			
-			tcBox.setContainerX(x);
-			tcBox.setContainerY(y);
-			
-			trBox.setContainerX(x);
-			trBox.setContainerY(y);
-			
-			clBox.setContainerX(x);
-			clBox.setContainerY(y);
-			
-			crBox.setContainerX(x);
-			crBox.setContainerY(y);
-			
-			blBox.setContainerX(x);
-			blBox.setContainerY(y);
-			
-			bcBox.setContainerX(x);
-			bcBox.setContainerY(y);
-			
-			brBox.setContainerX(x);
-			brBox.setContainerY(y);
 			
 		}
 		
@@ -222,45 +208,29 @@ public class SelectionBox {
 			
 		}
 		
+		public void handleMouse(CustomPanel drawingCanvas, int x, int y) {
+			
+			
+			
+		}
+		
 		public void handleHover(int x, int y) {
 			
-			Cursors temp = Cursors.DEFAULT;
+			// Makes it so that mouse-hovering of the main resizer boxes works fine; might change
 			
-			if(tlBox.intersects(x, y)) {
+			for(ResizerBox box: boxes) {
 				
-				temp = Cursors.NW_DIAGONAL;
-				
-			} else if(tcBox.intersects(x, y)) {
-				
-				temp = Cursors.VERTICAL;
-				
-			} else if(trBox.intersects(x, y)) {
-				
-				temp = Cursors.NE_DIAGONAL;
-				
-			} else if(clBox.intersects(x, y)) {
-				
-				temp = Cursors.HORIZONTAL;
-				
-			} else if(crBox.intersects(x, y)) {
-				
-				temp = Cursors.HORIZONTAL;
-				
-			} else if(blBox.intersects(x, y)) {
-				
-				temp = Cursors.SW_DIAGONAL;
-				
-			} else if(bcBox.intersects(x, y)) {
-				
-				temp = Cursors.VERTICAL;
-				
-			} else if(brBox.intersects(x, y)) {
-				
-				temp = Cursors.SE_DIAGONAL;
+				if(box.intersects(x, y)) {
+					Cursors temp = box.getCursor();
+					
+					cursor = temp.getCursor();
+					
+					return;
+				}
 				
 			}
 			
-			cursor = temp.getCursor();
+			cursor = null;
 			
 		}
 		
@@ -334,6 +304,10 @@ public class SelectionBox {
 			this.potentialHeight = potentialHeight;
 		}
 		
+		public boolean isResizing() {
+			return resizing;
+		}
+		
 		public boolean isCreating() {
 			return creating;
 		}
@@ -344,8 +318,8 @@ public class SelectionBox {
 		
 		public boolean intersects(int x, int y) {
 			
-			if(	x > getX() && x < getX() + getWidth() &&
-				y > getY() && y < getY() + getHeight()) {
+			if(	x > getX() - ResizerBox.BOX_WIDTH && x < getX() + getWidth() + ResizerBox.BOX_WIDTH &&
+				y > getY() - ResizerBox.BOX_HEIGHT && y < getY() + getHeight() + ResizerBox.BOX_HEIGHT) {
 				return true;
 			}
 			

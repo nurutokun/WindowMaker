@@ -1,9 +1,11 @@
 package com.rawad.windowmaker.swing.resizerboxes;
 
+import com.rawad.windowmaker.swing.Cursors;
+
 public class TopCenterBox extends ResizerBox {
 
 	public TopCenterBox(int containerWidth, int containerHeight) {
-		super(containerWidth, containerHeight);
+		super(Cursors.VERTICAL, containerWidth, containerHeight);
 		
 	}
 	

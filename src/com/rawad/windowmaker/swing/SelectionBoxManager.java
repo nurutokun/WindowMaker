@@ -36,11 +36,22 @@ public class SelectionBoxManager {
 		if(movingBox) {
 			box.move(drawingCanvas, x, y);
 			
-		} else if(box.isCreating()) {
+		} else if(box.isResizing()) {
+			// question mark.
+			
+//			box.resize(drawingCanvas, x, y);
+			
+		}else if(box.isCreating()) {
 			
 			box.updateMousePosition(x, y);
 			
 		} else if(box.intersects(x, y)) {
+			
+			// box.tryResize(drawingCanvas, int x, int y);
+			// should check if it intersects any of the boxes
+			// If it does, then resize, otherwise set movingBox = true;
+			
+//			handleMouse(drawingCanvas, x, y);
 			
 			movingBox = true;
 			
