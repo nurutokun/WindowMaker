@@ -1,11 +1,9 @@
 package com.rawad.windowmaker.swing.resizerboxes;
 
-import com.rawad.windowmaker.swing.Cursors;
-
 public class TopLeftBox extends ResizerBox {
 
-	public TopLeftBox(int containerWidth, int containerHeight) {
-		super(Cursors.NW_DIAGONAL, containerWidth, containerHeight);
+	public TopLeftBox(int width, int height) {
+		super(width, height);
 		
 	}
 	

@@ -314,12 +314,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			} else {
 				selectionManager.handleMouseRelease(this, x2, y2);
 				
-				Cursor temp = selectionManager.getLastBox().getCursor();
-				
-				if(temp != null) {
-					cursor = temp;
-				}
-				
+				cursor = selectionManager.getLastBox().getCursor();
 			}
 			
 			break;
@@ -901,15 +896,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		
 		if(rightBox.intersects(x, y)) {
 			
-			cursor = rightBox.getCursor().getCursor();
+			cursor = Cursors.HORIZONTAL.getCursor();
 			
 		} else if(bottomBox.intersects(x, y)) {
 			
-			cursor = bottomBox.getCursor().getCursor();
+			cursor = Cursors.VERTICAL.getCursor();
 			
 		} else if(cornerBox.intersects(x, y)) {
 			
-			cursor = cornerBox.getCursor().getCursor();
+			cursor = Cursors.SE_DIAGONAL.getCursor();
 			
 		} else {
 			cursor = Cursors.DEFAULT.getCursor();
