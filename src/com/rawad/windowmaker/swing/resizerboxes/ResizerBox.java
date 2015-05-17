@@ -3,10 +3,14 @@ package com.rawad.windowmaker.swing.resizerboxes;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import com.rawad.windowmaker.swing.Cursors;
+
 public abstract class ResizerBox {
 	
 	public static final int BOX_WIDTH = 6;
 	public static final int BOX_HEIGHT = 6;
+	
+	private final Cursors cursor;
 	
 	private final int width;
 	private final int height;
@@ -22,9 +26,11 @@ public abstract class ResizerBox {
 	
 	private boolean dragging;
 	
-	public ResizerBox(int containerWidth, int containerHeight) {
+	public ResizerBox(Cursors cursor, int containerWidth, int containerHeight) {
 		this.x = 0;
 		this.y = 0;
+		
+		this.cursor = cursor;
 		
 		this.containerWidth = containerWidth;
 		this.containerHeight = containerHeight;
@@ -63,6 +69,10 @@ public abstract class ResizerBox {
 		
 		return false;
 		
+	}
+	
+	public Cursors getCursor() {
+		return this.cursor;
 	}
 	
 	public void setContainerX(int x) {
