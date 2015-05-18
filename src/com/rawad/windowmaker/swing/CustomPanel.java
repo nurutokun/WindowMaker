@@ -621,6 +621,14 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 //		width = width*100/scaleFactor;
 //		height = height*100/scaleFactor;
 		
+		if(width <= 0) {
+			width = 1;
+		}
+		
+		if(height <= 0) {
+			height = 1;
+		}
+		
 		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
 		for(int i = x; i < x+width; i++) {
@@ -843,6 +851,16 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void setPenShape(Shape penShape) {
 		
 		if(penShape != null) {
+			
+			if(this.penShape == Shape.SELECT && penShape != Shape.SELECT) {
+				selectionManager.copySelectionOntoCanvas(this);
+				
+				SelectionBox box = selectionManager.getLastBox();
+				
+				box.initCreation(box.getX(), box.getY());
+				
+			}
+			
 			this.penShape = penShape;
 		}
 	}

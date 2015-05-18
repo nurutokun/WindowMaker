@@ -3,6 +3,8 @@ package com.rawad.windowmaker.swing;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import com.rawad.windowmaker.swing.resizerboxes.ResizerBox;
+
 public class SelectionBoxManager {
 	
 	// Could be an ArrayList
@@ -37,11 +39,10 @@ public class SelectionBoxManager {
 			box.move(drawingCanvas, x, y);
 			
 		} else if(box.isResizing()) {
-			// question mark.
 			
-//			box.resize(drawingCanvas, x, y);
+			box.handleResizing(drawingCanvas, x, y);
 			
-		}else if(box.isCreating()) {
+		} else if(box.isCreating()) {
 			
 			box.updateMousePosition(x, y);
 			
@@ -51,9 +52,17 @@ public class SelectionBoxManager {
 			// should check if it intersects any of the boxes
 			// If it does, then resize, otherwise set movingBox = true;
 			
-//			handleMouse(drawingCanvas, x, y);
+			ResizerBox resizerBox = box.getIntersectedBox(x, y);
 			
-			movingBox = true;
+			if(resizerBox == null) {
+				movingBox = true;
+				
+			} else {
+				
+				resizerBox.setResizing(true);
+				box.setResizing(true);
+				
+			}
 			
 		} else {
 			
@@ -62,7 +71,8 @@ public class SelectionBoxManager {
 				
 			}
 			
-			box.initCreation(x, y);// This stays for when we copy onto original image to make the box disappear, since the x/y are the same
+			box.initCreation(x, y);// This stays for when we copy onto original image to make the box disappear,
+								   // since the x/y are the same
 			
 		}
 		

@@ -5,7 +5,7 @@ import com.rawad.windowmaker.swing.Cursors;
 public class CenterRightBox extends ResizerBox {
 
 	public CenterRightBox(int containerWidth, int containerHeight) {
-		super(Cursors.HORIZONTAL, containerWidth, containerHeight);
+		super(Cursors.HORIZONTAL, containerWidth, containerHeight, 1, 0);
 		
 	}
 	

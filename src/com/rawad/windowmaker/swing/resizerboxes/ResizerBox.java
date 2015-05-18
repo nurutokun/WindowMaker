@@ -2,6 +2,7 @@ package com.rawad.windowmaker.swing.resizerboxes;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 
 import com.rawad.windowmaker.swing.Cursors;
 
@@ -15,6 +16,14 @@ public abstract class ResizerBox {
 	private final int width;
 	private final int height;
 	
+	private final int xScale;
+	private final int yScale;
+	
+	// ^^^
+	// -1,-1	0,-1	1,-1
+	// -1,0		--,--	1,0
+	// -1,1		0,1		1,1
+	
 	private int x;
 	private int y;
 	
@@ -25,12 +34,16 @@ public abstract class ResizerBox {
 	private int containerHeight;
 	
 	private boolean dragging;
+	private boolean resizing;
 	
-	public ResizerBox(Cursors cursor, int containerWidth, int containerHeight) {
+	public ResizerBox(Cursors cursor, int containerWidth, int containerHeight, int xScale, int yScale) {
 		this.x = 0;
 		this.y = 0;
 		
 		this.cursor = cursor;
+		
+		this.xScale = xScale;
+		this.yScale = yScale;
 		
 		this.containerWidth = containerWidth;
 		this.containerHeight = containerHeight;
@@ -56,7 +69,39 @@ public abstract class ResizerBox {
 		
 	}
 	
-	public void updatePosition() {
+	public abstract void updatePosition();
+	
+	/**
+	 * Coordinates are where the mouse has moved
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Rectangle getResizedPosition(int x, int y) {
+		
+		int oldX = containerX;
+		int oldY = containerY;
+		
+		int width;
+		int height;
+		
+		if(xScale < 0) {
+			
+			containerX = x;
+			
+		}
+		
+		if(yScale < 0) {
+			
+			containerY = y;
+			
+		}
+		
+		width = containerWidth + (xScale * ((x - oldX) - getX() - (BOX_WIDTH/2)));
+		height =  containerHeight + (yScale * ((y - oldY) - getY() - (BOX_HEIGHT/2)));
+		
+		return new Rectangle(containerX, containerY, width, height);
 		
 	}
 	
@@ -114,7 +159,15 @@ public abstract class ResizerBox {
 	public int getHeight() {
 		return containerHeight;
 	}
-
+	
+	public boolean isResizing() {
+		return resizing;
+	}
+	
+	public void setResizing(boolean resizing) {
+		this.resizing = resizing;
+	}
+	
 	public boolean isDragging() {
 		return dragging;
 	}

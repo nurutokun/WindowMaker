@@ -5,7 +5,7 @@ import com.rawad.windowmaker.swing.Cursors;
 public class TopLeftBox extends ResizerBox {
 
 	public TopLeftBox(int containerWidth, int containerHeight) {
-		super(Cursors.NW_DIAGONAL, containerWidth, containerHeight);
+		super(Cursors.NW_DIAGONAL, containerWidth, containerHeight, -1, -1);
 		
 	}
 	
