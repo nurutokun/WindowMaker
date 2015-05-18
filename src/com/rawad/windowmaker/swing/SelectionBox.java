@@ -45,8 +45,6 @@ public class SelectionBox {
 		private int potentialWidth;
 		private int potentialHeight;
 		
-		private int scaleFactor;
-		
 		private boolean resizing;
 		private boolean creating;
 		private boolean created;
@@ -56,8 +54,6 @@ public class SelectionBox {
 			
 			this.originalPicture = originalPicture;
 			this.displayPicture = originalPicture;
-			
-			scaleFactor = 100;
 			
 			this.width = originalPicture.getWidth();
 			this.height = originalPicture.getHeight();
