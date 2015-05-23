@@ -40,6 +40,9 @@ public class SelectionBox {
 		private int prevX;
 		private int prevY;
 		
+		private int moveX;
+		private int moveY;
+		
 		private int width;
 		private int height;
 		
@@ -291,15 +294,27 @@ public class SelectionBox {
 			
 		}
 		
+		/**
+		 * Optimizes dragging of the box so that it use a relative position rather than just the middle of the box.
+		 * 
+		 * @param x
+		 * @param y
+		 */
+		public void setInitialMovingCoord(int x, int y) {
+			
+			moveX = x - getX();
+			moveY = y - getY();
+			
+		}
+		
 		public void move(CustomPanel drawingCanvas, int x, int y) {
 			
 			if(!moved) {
 				drawingCanvas.fillRectangle(this.x, this.y, width, height, CustomPanel.INIT_PIC_BACKGROUND.getRGB());
 			}
 			
-			//TODO: this sucks, make it better
-			setX(x-(width/2));
-			setY(y-(height/2));
+			setX(x - moveX);
+			setY(y - moveY);
 			
 			moved = true;
 			

@@ -98,8 +98,18 @@ public abstract class ResizerBox {
 			
 		}
 		
+		System.out.printf("dx,dy: %s,%s\n", (x-oldX)-getX(), (y-oldY)-getY());
+		
 		width = containerWidth + (xScale * ((x - oldX) - getX() - (BOX_WIDTH/2)));
 		height =  containerHeight + (yScale * ((y - oldY) - getY() - (BOX_HEIGHT/2)));
+		
+		if(width <= 0) {
+			width = 1;
+		}
+		
+		if(height <= 0) {
+			height = 1;
+		}
 		
 		return new Rectangle(containerX, containerY, width, height);
 		

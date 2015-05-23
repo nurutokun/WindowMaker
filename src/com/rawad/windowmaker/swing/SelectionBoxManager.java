@@ -57,6 +57,8 @@ public class SelectionBoxManager {
 			if(resizerBox == null) {
 				movingBox = true;
 				
+				box.setInitialMovingCoord(x, y);
+				
 			} else {
 				
 				resizerBox.setResizing(true);
@@ -84,7 +86,9 @@ public class SelectionBoxManager {
 		
 		box.finalizeCreation(drawingCanvas, x, y);
 		
-		box.handleHover(x, y);
+		if(box.isCreated()) {
+			box.handleHover(x, y);
+		}
 		
 		movingBox = false;
 	}
