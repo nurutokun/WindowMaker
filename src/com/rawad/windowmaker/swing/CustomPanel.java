@@ -94,7 +94,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		penWidth = 20;
 		penHeight = 20;
 		
-		penShape = Shape.SELECT;
+		penShape = Shape.RECTANGLE;
 		
 		filePath = "res/test.png";
 		
@@ -155,12 +155,15 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		int maxWidth = window.getViewPortWidth() > viewWidth? viewWidth:window.getViewPortWidth();
 		int maxHeight = window.getViewPortHeight() > viewHeight? viewHeight:window.getViewPortHeight();
 		
+		int pixelWidth = displayPicture.getWidth()/scaleFactor;
+		int pixelHeight = displayPicture.getHeight()/scaleFactor;
+		
 		for(int i = y; i < y + maxHeight; i++) {
 			for(int j = x; j < x + maxWidth; j++) {
 				
 				try {
 					g.setColor(new Color(displayPicture.getRGB(j, i)));
-					g.fillRect(j, i, displayPicture.getWidth()/scaleFactor, displayPicture.getHeight()/scaleFactor);
+					g.fillRect(j, i, pixelWidth <= 0? 1:pixelWidth, pixelHeight <= 0? 1:pixelHeight);
 				} catch(Exception ex) {
 //					System.out.println(i + ", " + j + " is out of bounds.");
 //					ex.printStackTrace();
@@ -287,9 +290,11 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		switch(type) {
 		
 		case DRAW:
+			
 			if(dragging) {
 				renderPenStrokes();
 			}
+			
 			break;
 		
 		case TWO_COORDINATES:
@@ -325,6 +330,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			break;
 		
 		case LINE:
+			
+			// Make a "ShapeDrawer" class to draw any potential shape
 			
 			break;
 		

@@ -65,7 +65,10 @@ public abstract class ResizerBox {
 		g.drawRect(containerX + x, containerY + y, width, height);
 		
 		g.setColor(Color.WHITE);
-		g.fillRect(containerX + x + 1, containerY + y + 1 , width-1, height-1);
+		g.fillRect(containerX + x + 1, containerY + y + 1 , width - 1, height - 1);
+		
+//		g.setColor(Color.RED);
+//		g.drawString((containerX - x) +", " + (containerY - y), containerX + x, containerY + y - 5);
 		
 	}
 	
@@ -86,22 +89,32 @@ public abstract class ResizerBox {
 		int width;
 		int height;
 		
+		int modX = xScale;
+		int modY = yScale;
+		
 		if(xScale < 0) {
 			
-			containerX = x;
+			if(containerWidth > 1) {
+				containerX = x + (BOX_WIDTH/2);
+			}
 			
 		}
 		
 		if(yScale < 0) {
 			
-			containerY = y;
+			if(containerHeight > 1) {
+				containerY = y + (BOX_HEIGHT/2);
+			}
 			
 		}
 		
-		System.out.printf("dx,dy: %s,%s\n", (x-oldX)-getX(), (y-oldY)-getY());
+		int dx = (x - oldX - 1) - getX() - (BOX_WIDTH/2);
+		int dy = (y - oldY - 1) - getY() - (BOX_HEIGHT/2);
 		
-		width = containerWidth + (xScale * ((x - oldX) - getX() - (BOX_WIDTH/2)));
-		height =  containerHeight + (yScale * ((y - oldY) - getY() - (BOX_HEIGHT/2)));
+//		System.out.printf("xScale,yScale: %s, %s. dx,dy: %s,%s\n", modX, modY, dx, dy);
+		
+		width = containerWidth + (modX * dx);
+		height =  containerHeight + (modY * dy);
 		
 		if(width <= 0) {
 			width = 1;

@@ -60,6 +60,16 @@ public class ChangeManager {
 	
 	public void stopRecordingUndoChange() {
 		
+		try {
+			
+			if(currentChange.singleEdits.peek().equals(new Integer[]{0,0,0})) {
+				return;
+			}
+			
+		} catch(Exception ex) {
+			return;
+		}
+		
 		changeList.add(currentChange);
 		currentChange = new Change();
 	}
