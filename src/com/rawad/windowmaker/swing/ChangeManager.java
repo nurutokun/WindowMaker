@@ -93,7 +93,7 @@ public class ChangeManager {
 			stopRecordingRedoChange();
 			
 		} catch(EmptyStackException ex) {
-			System.out.println("Undo change not found...");
+//			System.out.println("Undo change not found...");
 		}
 		
 		undoing = false;
@@ -112,7 +112,7 @@ public class ChangeManager {
 			stopRecordingUndoChange();
 			
 		} catch(EmptyStackException ex) {
-			System.out.println("Redo change not found...");
+//			System.out.println("Redo change not found...");
 		}
 		
 		redoing = false;

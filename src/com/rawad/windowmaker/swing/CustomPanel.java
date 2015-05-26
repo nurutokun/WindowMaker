@@ -27,6 +27,9 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	public static final Color INIT_PIC_BACKGROUND = new Color(0xFFFFFFFF);
 	
+	private static final int MAX_IMAGE_WIDTH = 2000;
+	private static final int MAX_IMAGE_HEIGHT = 2000;
+	
 	/**
 	 * Big, Long, number
 	 */
@@ -121,7 +124,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		if(displayPicture != null) {
+		if(displayPicture != null && window != null) {
 			drawDisplayPicture(g);
 			
 		} else {
@@ -267,6 +270,14 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 					
 				}
 				
+				if(potentialWidth > MAX_IMAGE_WIDTH) {
+					potentialWidth -= dx;
+				}
+				
+				if(potentialHeight > MAX_IMAGE_HEIGHT) {
+					potentialHeight -= dy;
+				}
+				
 				resizing = true;
 				
 			}
@@ -301,8 +312,35 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			handleTwoCoordinateStroke();
 			break;
 			
+		case SINGLE_COORDINATE:
+			
+			if(dragging) {
+				handleSingleCoordinateStroke();
+				
+				dragging = false;
+			}
+			
+			break;
+			
 		default:
 			break;
+		
+		}
+		
+	}
+	
+	private void handleSingleCoordinateStroke() {
+		
+		switch(penShape) {
+		
+		case COLOR_SAMPLE:
+			
+			penColor = new Color(displayPicture.getRGB(x2, y2));
+			
+			break;
+			
+			default:
+				break;
 		
 		}
 		
@@ -316,6 +354,7 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 			
 			if(dragging) {
 				selectionManager.handleMouse(this, x2, y2);
+				
 			} else {
 				selectionManager.handleMouseRelease(this, x2, y2);
 				
@@ -486,7 +525,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	
 	private void fillCircle(int x, int y, int strokeWidth, int strokeHeight) {
 		
-		int radius = strokeWidth + strokeHeight /2;
+		int radius = strokeWidth + strokeHeight /8;// /= 2 for average and /= 2 again to half of that for radius
+		radius = radius <= 0? 1:radius;
 		
 		for(int i = radius; i >= 1; i--) {
 			
@@ -945,7 +985,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 	public static enum PenType {
 		
 		DRAW,
-		TWO_COORDINATES;
+		TWO_COORDINATES,
+		SINGLE_COORDINATE;
 		
 	}
 	
@@ -955,7 +996,8 @@ public class CustomPanel extends JPanel implements MouseListener, MouseMotionLis
 		CIRCLE("Circle", PenType.DRAW),
 		TRIANGLE("Triangle", PenType.DRAW),
 		SELECT("Selection Box", PenType.TWO_COORDINATES),
-		LINE("Line", PenType.TWO_COORDINATES);
+		LINE("Line", PenType.TWO_COORDINATES),
+		COLOR_SAMPLE("Color Sampler", PenType.SINGLE_COORDINATE);
 		
 		private final String id;
 		private final PenType type;

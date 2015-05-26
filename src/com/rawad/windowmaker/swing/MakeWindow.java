@@ -71,12 +71,20 @@ public class MakeWindow {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+
+				try {
+					UIManager.setLookAndFeel(UIManager
+							.getSystemLookAndFeelClassName());// YES!
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
 				try {
 					window = new MakeWindow();
 					window.initialize();
 					window.frmFrameTitle.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
 		});
@@ -93,6 +101,9 @@ public class MakeWindow {
 	 */
 	private void initialize() {
 		frmFrameTitle = new JFrame();
+
+		frmFrameTitle.setIconImage(loadImage("icon"));
+
 		frmFrameTitle.addWindowListener(new WindowAdapter() {
 
 			@Override
@@ -412,6 +423,16 @@ public class MakeWindow {
 
 	public static MakeWindow instance() {
 		return window;
+	}
+
+	private static BufferedImage loadImage(String imageName) {
+
+		try {
+			return ImageIO.read(new File("res/" + imageName + ".png"));
+		} catch (Exception ex) {
+			return new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		}
+
 	}
 
 	@SuppressWarnings("unused")
